@@ -11,7 +11,7 @@
     <div class="container">
         <div class="navbar">
             <div class="navbar-brand">
-                Persons List Demo
+                <img src="~/logo.png" asp-append-version="true" width="60px"/>
             </div>
             <ul>
                 <li>
@@ -23,5 +23,6 @@
             @RenderBody()
         </div>
     </div>
+    @RenderSection("scripts", required: false)
 </body>
 </html>
