@@ -7,34 +7,64 @@ using System.Data;
 using Services.Helpers;
 using System.Reflection;
 using ServiceContracts.Enums;
-using Microsoft.EntityFrameworkCore;
 
 namespace Services
 {
     public class PersonsService : IPersonsService
     {
         //private field
-        private readonly PersonsDbContext _personsDbContext;
+        private readonly List<Person> _persons;
         private readonly ICountriesService _countriesService;
 
-        public PersonsService(PersonsDbContext personsDbContext, ICountriesService countriesService)
+        public PersonsService(bool initialize = true)
         {
-            _personsDbContext= personsDbContext;
-            _countriesService = countriesService;
+            _persons = new List<Person>();
+            _countriesService = new CountriesService();
 
+            if (initialize)
+            {
+                _persons.AddRange(new List<Person>() 
+                { 
+                    new Person() { PersonID = Guid.Parse("2C2BB064-50F9-4548-B702-939E6AF18BCF"),
+                    PersonName = "Hansiain", Email = "hstaddart0@scientificamerican.com",
+                    DateOfBirth = DateTime.Parse("1999-01-10"), Address = "3809 Crownhardt Terrace",
+                    Gender = "Male" , ReceiveNewsLetters = true, CountryID = Guid.Parse("7CA6E811-9879-4F5D-90DF-051D1200D111")},
+                    new Person() { PersonID = Guid.Parse("1F323BD6-0D75-46AB-B63E-4429DDA5F667"),
+                    PersonName = "Paquito", Email = "pduckerin1@php.net",
+                    DateOfBirth = DateTime.Parse("1998-12-04"), Address = "1668 Badeau Terrace",
+                    Gender = "Male" , ReceiveNewsLetters = true,  CountryID = Guid.Parse("129DDFFE-D967-45B6-943E-4536384F2731") },
+                    new Person() { PersonID = Guid.Parse("D8A4A97A-BDB5-42D4-8633-EF20848BC3F5"),
+                    PersonName = "Dannye", Email = "dekless2@cdc.gov",
+                    DateOfBirth = DateTime.Parse("1994-07-23"), Address = "0684 Eggendart Plaza",
+                    Gender = "Female" , ReceiveNewsLetters = true,  CountryID = Guid.Parse("25EE8371-43DD-41A9-A9BC-011D3A6FDB06") },
+                    new Person() { PersonID = Guid.Parse("5DA3B7EC-58C9-4390-920E-1D9DD88B758D"),
+                    PersonName = "Zacherie", Email = "zguye3@1688.com",
+                    DateOfBirth = DateTime.Parse("2000-05-27"), Address = "55786 Dapin Hil",
+                    Gender = "Male" , ReceiveNewsLetters = false,  CountryID = Guid.Parse("5CF549CE-FF0C-467D-84BF-FC541EB82CBD") },
+                    new Person() { PersonID = Guid.Parse("BF2B3192-B68F-4ED8-B10A-54D354A154C6"),
+                    PersonName = "Radcliffe", Email = "rcockley4@mayoclinic.com",
+                    DateOfBirth = DateTime.Parse("1998-11-20"), Address = "27 Gina Avenue",
+                    Gender = "Male" , ReceiveNewsLetters = false,  CountryID = Guid.Parse("7F8FCF18-BBD7-416D-BDB1-908BA33FB1E2") },
+                    new Person() { PersonID = Guid.Parse("84F626EF-E1FF-4720-9B8E-2E0EBBF98DA1"),
+                    PersonName = "Yuma", Email = "ysammes5@netlog.com",
+                    DateOfBirth = DateTime.Parse("1993-10-10"), Address = "790 Cody Parkway",
+                    Gender = "Male" , ReceiveNewsLetters = false,  CountryID = Guid.Parse("129DDFFE-D967-45B6-943E-4536384F2731") }
+                });
+
+            }
         }
 
-        //private PersonResponse ConvertPersonToPersoneResponse(Person person)
-        //{
-        //    //Convert the Person Object into PersonResponse type
-        //    PersonResponse personResponse = person.ToPersonResponse();
+        private PersonResponse ConvertPersonToPersoneResponse(Person person)
+        {
+            //Convert the Person Object into PersonResponse type
+            PersonResponse personResponse = person.ToPersonResponse();
 
-        //    personResponse.Country = person.Country?.CountryName;
+            personResponse.Country = _countriesService.GetCountryByCountryID(person.CountryID)?.CountryName;
 
-        //    return personResponse;
-        //}
+            return personResponse;
+        }
 
-        public async Task<PersonResponse> AddPerson(PersonAddRequest? personAddRequest)
+        public PersonResponse AddPerson(PersonAddRequest? personAddRequest)
         {
             //Check if PersonAddRequest is not null
             if (personAddRequest == null) 
@@ -52,65 +82,62 @@ namespace Services
             person.PersonID = Guid.NewGuid();
 
             //Add Person to list
-            _personsDbContext.Persons.Add(person);
-
-            await _personsDbContext.SaveChangesAsync();
-            //_personsDbContext.sp_InsertPerson(person);
+            _persons.Add(person);
 
             //Convert the Person Object into PersonResponse type
-            return person.ToPersonResponse();
+            return ConvertPersonToPersoneResponse(person);
 
         }
 
-        public async Task<List<PersonResponse>> GetAllPersons()
+        public List<PersonResponse> GetAllPersons()
         {
-            var persons = await _personsDbContext.Persons.Include("Country").ToListAsync();
-
-            return persons.Select(p => p.ToPersonResponse()).ToList();
-            //return _personsDbContext.sp_GetAllPersons().Select(p => ConvertPersonToPersoneResponse(p)).ToList();
+            return _persons.Select(p => ConvertPersonToPersoneResponse(p)).ToList();
         }
 
-        public async Task<PersonResponse?> GetPersonByPersonID(Guid? personID)
+        public PersonResponse? GetPersonByPersonID(Guid? personID)
         {
             if(!personID.HasValue)
             {
                 return null;
             }
 
-            Person? person = await _personsDbContext.Persons.Include("Country").FirstOrDefaultAsync(p => p.PersonID == personID);
+            Person? person = _persons.FirstOrDefault(p => p.PersonID == personID);
 
             if (person == null) 
             {
                 return null;
             }
 
-            return person.ToPersonResponse();
+            return ConvertPersonToPersoneResponse(person);
         }
 
-        public async Task<List<PersonResponse>> GetFilteredPersons(string searchBy, string? searchString)
+        public List<PersonResponse> GetFilteredPersons(string searchBy, string? searchString)
         {
+            List<Person> persons = new List<Person>();
 
-            List<Person> persons = await _personsDbContext.Persons.ToListAsync();
+            List<PersonResponse> allPersons = GetAllPersons();
 
-            if (string.IsNullOrEmpty(searchString) || string.IsNullOrEmpty(searchBy)) return await GetAllPersons();
+            List<PersonResponse> matchingPersons = allPersons;
+
+            if (string.IsNullOrEmpty(searchString) || string.IsNullOrEmpty(searchBy)) return matchingPersons;
 
             var propertyInfo = typeof(Person).GetProperty(searchBy);
             if (propertyInfo != null)
             {
-                persons = persons.Where(person =>
+                persons = _persons.Where(person =>
                 {
                     var value = propertyInfo.GetValue(person);
 
                     if (value == null)
                         return true;
-
+           
                     if (value is DateTime dateTimeValue)
                     {
                         string formattedDate = dateTimeValue.ToString("dd MMMM yyyy");
                         return formattedDate.Contains(searchString, StringComparison.OrdinalIgnoreCase);
                     }
 
-                    if (searchBy == "Gender")
+                    if (searchBy == "Gender" )
                     {
                         string? stringValue = value?.ToString()?.ToLower();
                         return Equals(searchString.ToLower(), stringValue);
@@ -121,12 +148,13 @@ namespace Services
                     return valueAsString?.Contains(searchString, StringComparison.OrdinalIgnoreCase) ?? true;
 
                 }).ToList();
-            
             }
-                return persons.Select(p => p.ToPersonResponse()).ToList();
+
+            return persons.Select(p =>  ConvertPersonToPersoneResponse(p)).ToList();
+
         }
 
-        public async Task<List<PersonResponse>> GetSortedPersons(List<PersonResponse> allPersons, string sortBy, SortOrderOptions sortOrder)
+        public List<PersonResponse> GetSortedPersons(List<PersonResponse> allPersons, string sortBy, SortOrderOptions sortOrder)
         {
             if (string.IsNullOrEmpty(sortBy))
             {
@@ -190,7 +218,7 @@ namespace Services
             return sortedPersons;
         }
 
-        public async Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest)
+        public PersonResponse UpdatePerson(PersonUpdateRequest? personUpdateRequest)
         {
             if (personUpdateRequest == null)
             {
@@ -201,7 +229,7 @@ namespace Services
             ValidationHelper.ModelValidation(personUpdateRequest);
 
             //get matching person object to update
-            Person? matchingPerson = await _personsDbContext.Persons.FirstOrDefaultAsync(p => p.PersonID == personUpdateRequest.PersonID);
+            Person? matchingPerson = _persons.FirstOrDefault(p => p.PersonID == personUpdateRequest.PersonID);
 
             if (matchingPerson == null) 
             {
@@ -217,24 +245,22 @@ namespace Services
             matchingPerson.Address = personUpdateRequest.Address;
             matchingPerson.ReceiveNewsLetters = personUpdateRequest.ReceiveNewsLetters;
 
-            await _personsDbContext.SaveChangesAsync(); //Update
-
-            return matchingPerson.ToPersonResponse();
+            return ConvertPersonToPersoneResponse(matchingPerson);
         }
 
-        public async Task<bool> DeletePerson(Guid? personID)
+        public bool DeletePerson(Guid? personID)
         {
             if(personID == null)
             {
                 throw new ArgumentNullException(nameof(personID));
             }
 
-            Person? person = await _personsDbContext.Persons.FirstOrDefaultAsync(p => p.PersonID == personID);
+            Person? person = _persons.FirstOrDefault(p => p.PersonID == personID);
 
             if(person == null) { return false; }
 
-            _personsDbContext.Persons.Remove(_personsDbContext.Persons.First(p => p.PersonID == personID));
-            await _personsDbContext.SaveChangesAsync();
+            _persons.RemoveAll(p => p.PersonID == personID );
+
             return true;
         }
     }
