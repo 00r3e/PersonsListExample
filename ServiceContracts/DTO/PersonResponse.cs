@@ -58,12 +58,12 @@ namespace ServiceContracts.DTO
                 $"Address: {Address}, ReceiveNewsLetters: {ReceiveNewsLetters}";
         }
 
-        public string ToString(string? CountryName)
-        {
-            return $"Person ID: {PersonID},Person Name: {PersonName},Email: {Email},Date Of Birth: " +
-                $"{DateOfBirth},Gender: {Gender},Country: {CountryName},Country ID: {CountryID}, " +
-                $"Address: {Address}, ReceiveNewsLetters: {ReceiveNewsLetters}";
-        }
+        //public string ToString(string? CountryName)
+        //{
+        //    return $"Person ID: {PersonID},Person Name: {PersonName},Email: {Email},Date Of Birth: " +
+        //        $"{DateOfBirth},Gender: {Gender},Country: {CountryName},Country ID: {CountryID}, " +
+        //        $"Address: {Address}, ReceiveNewsLetters: {ReceiveNewsLetters}";
+        //}
 
         public PersonUpdateRequest ToPersonUpdateRequest()
         {
@@ -100,7 +100,8 @@ namespace ServiceContracts.DTO
                 ReceiveNewsLetters = person.ReceiveNewsLetters, Address = person.Address,
                 CountryID = person.CountryID, Gender = person.Gender,
                 Age = (person.DateOfBirth != null) ?  Math.Round
-                ((DateTime.Now - person.DateOfBirth.Value).TotalDays / 365.25) : null
+                ((DateTime.Now - person.DateOfBirth.Value).TotalDays / 365.25) : null,
+                Country = person.Country?.CountryName,
             };
         }
 
