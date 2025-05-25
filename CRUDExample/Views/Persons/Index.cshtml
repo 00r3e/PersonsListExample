@@ -3,18 +3,18 @@
 	ViewBag.Title = "Persons";
 }
 
-<form action="~/persons/index" method="get">
+<form asp-controller="Persons" asp-action="Index" method="get">
 	<h1>Persons</h1>
-	<a href="~/persons/create">Create Person</a>
+	<a asp-controller="Persons" asp-action="Create">Create Person</a>
 	<div class="box flex">
 		<div class="flex-1">
 			<select class="form-input" name="searchBy" >
 				@foreach (var field in ViewBag.SearchFields)
 				{
-					<option value="@field.Key" @(field.Key == ViewBag.CurrentSearchBy ? "selected" : "")>
-						@field.Value</option>
+					var isSelected = field.Key == ViewBag.CurrentSearchBy ? "selected" : null;
+					<option value="@field.Key" selected="@isSelected">@field.Value</option>
 				}
-				@* excample: searchBy=PersonName *@
+				@* example: searchBy=PersonName *@
 			</select>
 		</div>
 
@@ -24,7 +24,7 @@
 
 		<div class="flex-1">
 			<button class="button button-blue-back">Search</button>
-			<a href="~/persons/index" class="link-hover">Clear all</a>
+			<a asp-controller="Persons" asp-action="Index" class="link-hover">Clear all</a>
 		</div>
 	</div>
 
