@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Http;
 using ServiceContracts.DTO;
 using ServiceContracts.Enums;
 
@@ -69,5 +70,19 @@ namespace ServiceContracts
         /// <param name="personID"></param>
         /// <returns>returns true if delete is succeed, else returns false</returns>
         Task<bool> DeletePerson(Guid? personID);
+        
+        /// <summary>
+        /// Returns a CSV File off all persons
+        /// </summary>
+        /// <returns>Returns a memory stream with CSV data</returns>
+        Task<MemoryStream> GetPersonsCSV();
+
+        /// <summary>
+        /// Returns persons as Excel 
+        /// </summary>
+        /// <returns>Returns the memory stream with Excel data of persons</returns>
+        Task<MemoryStream> GetPersonsExcel();
+
+
     }
 }

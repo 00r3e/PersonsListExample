@@ -11,7 +11,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 namespace Entities.Migrations
 {
-    [DbContext(typeof(PersonsDbContext))]
+    [DbContext(typeof(ApplicationDbContext))]
     [Migration("20250523085642_SeedDataInTINColumn_StoredProcedure")]
     partial class SeedDataInTINColumn_StoredProcedure
     {

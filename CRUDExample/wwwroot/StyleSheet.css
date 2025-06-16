@@ -350,6 +350,21 @@ a.link-hover:hover {
     display: inline-block;
 }
 
+.form-field > div:first-child {
+    flex: 1;
+    width: auto;
+}
+
+.form-field > div:nth-child(2) {
+    flex: 1;
+    width: auto;
+}
+
+.form-field {
+    flex-direction: column;
+    margin-bottom: 6px;
+}
+
 @media screen and (min-width: 1000px) {
     .navbar-brand {
         display: inline-block;
