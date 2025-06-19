@@ -5,6 +5,8 @@ using Entities;
 using RepositoryContracts;
 using Repositories;
 
+
+
 var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddControllersWithViews();
 
@@ -14,12 +16,19 @@ builder.Services.AddScoped<IPersonsService, PersonsService>();
 builder.Services.AddScoped<IPersonsRepository, PersonsRepository>();
 builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
 
+
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
 {
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")).EnableSensitiveDataLogging();
+    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))/*.EnableSensitiveDataLogging()*/;
 });
 
-Rotativa.AspNetCore.RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath:"Rotativa");
+
+
+if (!builder.Environment.IsEnvironment("Test"))
+{
+    Rotativa.AspNetCore.RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
+}
+
 
 var app = builder.Build();
 
@@ -32,4 +41,7 @@ app.UseStaticFiles();
 app.UseRouting();
 app.MapControllers();
 
+
 app.Run();
+
+public partial class Program { } //make Program accessible programmatically

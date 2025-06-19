@@ -1,33 +1,34 @@
 ﻿@if (ViewBag.CurrentSortBy == ViewBag.ColumnName && ViewBag.CurrentSortOrder ==
-				SortOrderOptions.ASCENDING)
-				{
-					<th>
-						<a href="~/persons/index?
+						SortOrderOptions.ASCENDING)
+{
+	<th>
+		<a href="~/persons/index?
 						searchBy=@ViewBag.CurrentSearchBy&
 						searchString=@ViewBag.CurrentSearchString&
 						sortBy=@ViewBag.ColumnName&
 						sortOrder=DESCENDING">@ViewBag.DisplayName</a>
-						<i class="fa-solid fa-sort-down" />
-					</th>
-				}
-				else if (ViewBag.CurrentSortBy == ViewBag.ColumnName && ViewBag.CurrentSortOrder ==
-				SortOrderOptions.DESCENDING)
-				{
-					<th>
-						<a href="~/persons/index?
+		<i class="fa-solid fa-sort-down" />
+	</th>
+}
+else if (ViewBag.CurrentSortBy == ViewBag.ColumnName && ViewBag.CurrentSortOrder ==
+SortOrderOptions.DESCENDING)
+{
+	<th>
+		<a href="~/persons/index?
 						searchBy=@ViewBag.CurrentSearchBy&
 						searchString=@ViewBag.CurrentSearchString&
 						sortBy=@ViewBag.ColumnName&
 						sortOrder=ASCENDING">@ViewBag.DisplayName</a>
-						<i class="fa-solid fa-sort-up" />
-					</th>
-				}else
-				{
-					<th>
-						<a href="~/persons/index?
+		<i class="fa-solid fa-sort-up" />
+	</th>
+}
+else
+{
+	<th>
+		<a href="~/persons/index?
 						searchBy=@ViewBag.CurrentSearchBy&
 						searchString=@ViewBag.CurrentSearchString&
 						sortBy=@ViewBag.ColumnName&
 						sortOrder=ASCENDING">@ViewBag.DisplayName</a>
-					</th>
-				}
+	</th>
+}

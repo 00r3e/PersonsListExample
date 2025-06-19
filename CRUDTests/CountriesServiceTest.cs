@@ -11,7 +11,6 @@ using Azure.Core;
 using Moq;
 using RepositoryContracts;
 
-
 namespace CRUDTests
 {
     public class CountriesServiceTest
@@ -32,7 +31,6 @@ namespace CRUDTests
             _countriesService = new CountriesService(_countriesRepository);
 
         }
-
 
         #region AddCountry
         //When CountryAddRequest is null, it should throw ArgumentNullException

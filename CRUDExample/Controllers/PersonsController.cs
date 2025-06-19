@@ -84,7 +84,7 @@ namespace CRUDExample.Controllers
             //call the service method
             PersonResponse personResponse = await _personsService.AddPerson(personAddRequest);
 
-            //navigate to Index action method (it makes another get request tp "persons/index"
+            //navigate to Index action method (it makes another get request to "persons/index")
             return RedirectToAction("Index","Persons");
         }
 
