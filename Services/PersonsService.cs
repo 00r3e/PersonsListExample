@@ -59,7 +59,6 @@ namespace Services
 
             //Convert the Person Object into PersonResponse type
             return person.ToPersonResponse();
-
         }
 
         public async Task<List<PersonResponse>> GetAllPersons()
@@ -100,7 +99,7 @@ namespace Services
 
                 nameof(PersonResponse.DateOfBirth) =>
                  await _personsRepository.GetFilteredPersons(temp =>
-                 temp.DateOfBirth.Value.ToString("dd MMMM yyyy").Contains(searchString)),
+                 temp.DateOfBirth.Value.ToString().Contains(searchString)),
 
 
                 nameof(PersonResponse.Gender) =>

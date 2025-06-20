@@ -27,7 +27,6 @@ namespace PersonsListTests
 
         private readonly IFixture _fixture;
 
-
         public PersonsControllerIntegrationTest(CustomWebApplicationFactory webAppFactory)
         {
             _personsServiceMock = new Mock<IPersonsService>();
@@ -221,8 +220,8 @@ namespace PersonsListTests
 
             var document = htmlDocument.DocumentNode;
 
-            var table = document.QuerySelector("h2.delete");
-            table.Should().NotBeNull();
+            var div = document.QuerySelector("div.delete");
+            div.Should().NotBeNull();
         }
 
         [Fact]
