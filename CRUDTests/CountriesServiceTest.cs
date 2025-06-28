@@ -10,6 +10,7 @@ using FluentAssertions;
 using Azure.Core;
 using Moq;
 using RepositoryContracts;
+using Microsoft.Extensions.Logging;
 
 namespace CRUDTests
 {
@@ -28,8 +29,9 @@ namespace CRUDTests
             _countriesRepositoryMock = new Mock<ICountriesRepository>();
             _countriesRepository = _countriesRepositoryMock.Object;
 
-            _countriesService = new CountriesService(_countriesRepository);
+            var loggerMock = new Mock<ILogger<CountriesService>>();
 
+            _countriesService = new CountriesService(_countriesRepository, loggerMock.Object);
         }
 
         #region AddCountry
@@ -49,13 +51,6 @@ namespace CRUDTests
             //Assert
             await action.Should().ThrowAsync<ArgumentNullException>();
 
-            ////Assert
-            //await Assert.ThrowsAsync<ArgumentNullException>(async () =>
-            //{
-            //    //Act
-            //    await _countriesService.AddCountry(request);
-            //});
-
         }
 
         //When the CountryName is null, it should throw ArgumentException
@@ -74,13 +69,6 @@ namespace CRUDTests
 
             //Assert
             await action.Should().ThrowAsync<ArgumentException>();
-
-            ////Assert
-            //await Assert.ThrowsAsync<ArgumentException>(async () =>
-            //{
-            //    //Act
-            //    await _countriesService.AddCountry(request);
-            //});
 
         }
 
@@ -121,13 +109,7 @@ namespace CRUDTests
 
             //Assert
             await action.Should().ThrowAsync<ArgumentException>();
-            ////Assert
-            //await Assert.ThrowsAsync<ArgumentException>(async () =>
-            //{
-            //    //Act
-            //    await _countriesService.AddCountry(request1);
-            //    await _countriesService.AddCountry(request2);
-            //});
+
         }
 
 
@@ -151,10 +133,6 @@ namespace CRUDTests
 
             countryResponseFromAdd.CountryID.Should().NotBeEmpty();
             countryResponseExpected.Should().Be(countryResponseFromAdd);
-
-            ////Assert
-            //Assert.True(response.CountryID != Guid.Empty);
-            //Assert.Contains<CountryResponse>(response, countriesFromGetAllCountries);
 
         }
 
@@ -182,11 +160,6 @@ namespace CRUDTests
 
             responseListFromGet.Should().BeEquivalentTo(countryResponses);
 
-            ////Assert
-            //foreach (CountryResponse countryResponse in countryResponses)
-            //{
-            //    Assert.Contains<CountryResponse>(countryResponse, responseListFromGet);
-            //}
         }
 
         
@@ -204,8 +177,6 @@ namespace CRUDTests
             //Assert
             actualCountryResponseList.Should().BeEmpty();
 
-            ////Assert
-            //Assert.Empty(actualCountryResponseList);
 
         }
         #endregion
@@ -222,11 +193,7 @@ namespace CRUDTests
 
             //Assert
             result.Should().BeNull(); 
-            
-            ////Assert
-            //Assert.Null(
-            //    //Act
-            //    await _countriesService.GetCountryByCountryID(new Guid()));
+
         }
 
 
@@ -246,15 +213,7 @@ namespace CRUDTests
             //Assert
             countryResponseFromGet.Should().BeEquivalentTo(countryResponseExpected);
 
-            ////Assert
-            //Assert.Equal(countryResponseFromadd,
-            ////Act
-            //await _countriesService.GetCountryByCountryID(countryResponseFromadd.CountryID));
         }
-
-        
-        
-
         #endregion
     }
 }

@@ -16,6 +16,8 @@ using RepositoryContracts;
 using Moq;
 using FluentAssertions.Execution;
 using System.Linq.Expressions;
+using Serilog;
+using Microsoft.Extensions.Logging;
 
 namespace CRUDTests
 {
@@ -38,13 +40,17 @@ namespace CRUDTests
             _personsRepositoryMock = new Mock<IPersonsRepository>();
             _personsRepository = _personsRepositoryMock.Object;
 
-            _personsService = new PersonsService(_personsRepository);
+            var diagnosticContextMock = new Mock<IDiagnosticContext>();
+            var loggerMock = new Mock<ILogger<PersonsService>>();
+
+
+            _personsService = new PersonsService(_personsRepository, loggerMock.Object,
+                diagnosticContextMock.Object);
 
             _testOutputHelper = testOutputHelper;
         }
 
         #region AddPerson
-
 
         //When we supply null value as PersonAddRequest,it should throw ArgumentNullException
         [Fact]
@@ -92,10 +98,6 @@ namespace CRUDTests
             //Assert
             await action.Should().ThrowAsync<ArgumentException>();
 
-            ////Assert
-            //await Assert.ThrowsAsync<ArgumentException>(async () =>
-            ////Act
-            //    await _personsService.AddPerson(personAddRequest));
         }
 
         //When we supply proper person details, it should insert the person in to the persons list
@@ -124,10 +126,6 @@ namespace CRUDTests
             personResponseFromAdd.PersonID.Should().NotBe(Guid.Empty);
             personResponseFromAdd.Should().Be(personResponseExpected);
 
-            ////Assert
-            //Assert.True(personResponse.PersonID != Guid.Empty);
-
-            //Assert.Contains(personResponse, personResponseList);
         }
 
 
@@ -150,9 +148,6 @@ namespace CRUDTests
 
             //Assert
             personResponse.Should().BeNull();
-
-            ////Assert
-            //Assert.Null(personResponse);
         }
 
         //if supply a valid person id, should return a Person response object
@@ -175,9 +170,6 @@ namespace CRUDTests
 
             personResponseFromGetPersonByID.Should().Be(personResponseExpected);
 
-            ////Assert
-            //Assert.Equal(personResponseFromAddPerson, personResponseFromGetPersonByID);
-
         }
 
 
@@ -198,8 +190,6 @@ namespace CRUDTests
 
             persons.Should().BeEmpty();
 
-            ////Assert
-            //Assert.Empty(persons);
         }
 
         //first, we add few persons; and then when we call GetallPersons,
@@ -249,17 +239,11 @@ namespace CRUDTests
 
             personsResponseListFromGet.Should().BeEquivalentTo(personResponseListExpected);
 
-            ////Assert
-            //foreach (PersonResponse personResponseFromAdd in personResponseListFromAdd)
-            //{
-            //    Assert.Contains(personResponseFromAdd, personsListFromGet);
-            //}
         }
 
         #endregion
 
         #region GetFilteredPersons
-
 
         //If search text is empty and search by is "PersonName", it should return all persons
         [Fact]
@@ -306,14 +290,7 @@ namespace CRUDTests
             //Assert
             personsListFromSearch.Should().BeEquivalentTo(personResponseListExpected);
 
-            ////Assert
-            //foreach (PersonResponse personResponseFromAdd in personResponseListFromAdd)
-            //{
-            //    Assert.Contains(personResponseFromAdd, personsListFromSearch);
-            //}
-
         }
-
 
         //search based on person name with some search string.It should return the matching persons
         [Fact]
@@ -414,17 +391,6 @@ namespace CRUDTests
             //Assert
             personsResponseListFromSort.Should().BeInDescendingOrder(temp => temp.PersonName);
 
-            //personResponseListFromAdd = personResponseListFromAdd.OrderByDescending(p => p.PersonName).ToList();
-
-            ////Assert
-            //personsResponseListFromSort.Should().BeEquivalentTo(personResponseListFromAdd);
-
-            ////Assert
-            //for (int i = 0; i < personResponseListFromAdd.Count; i++)
-            //{
-            //    Assert.Equal(personResponseListFromAdd[i], personsResponseListFromSort[i]);
-            //}
-
         }
 
         #endregion
@@ -447,11 +413,6 @@ namespace CRUDTests
             //Assert
             await action.Should().ThrowAsync<ArgumentNullException>();
 
-            ////Assert
-            //await Assert.ThrowsAsync<ArgumentNullException>(async () =>
-            //    //Act
-            //    await _personsService.UpdatePerson(personUpdateRequest)
-            //);
         }
 
         //When we supply invalid person id, it should throw ArgumentException
@@ -471,11 +432,6 @@ namespace CRUDTests
 
             await action.Should().ThrowAsync<ArgumentException>();
 
-            ////Assert
-            //await Assert.ThrowsAsync<ArgumentException>(async () =>
-            //    //Act
-            //    await _personsService.UpdatePerson(personUpdateRequest)
-            //);
         }
 
         //When the PersoneName is null, it should trow ArgumentException
@@ -506,11 +462,6 @@ namespace CRUDTests
 
             await action.Should().ThrowAsync<ArgumentException>();
 
-            ////Assert
-            //await Assert.ThrowsAsync<ArgumentException>(async () =>
-            //    //Act
-            //    await _personsService.UpdatePerson(personUpdateRequest));
-
         }
 
         //First, add a new person and try to update the person name and email
@@ -537,9 +488,6 @@ namespace CRUDTests
             //Assert
             personResponseFromUpdate.Should().Be(personResponseExpected);
 
-            ////Assert
-            //Assert.Equal(personResponseFromGet, personResponseFromUpdate);
-
         }
 
         #endregion
@@ -565,9 +513,6 @@ namespace CRUDTests
             bool isDeleted = await _personsService.DeletePerson(person.PersonID);
 
             isDeleted.Should().BeTrue();
-
-            ////Assert
-            //Assert.True(isDeleted);
         }
 
         //if you supply an invalid PersonID, it should return false
@@ -580,9 +525,6 @@ namespace CRUDTests
 
             //Assert
             isDeleted.Should().BeFalse();
-            
-            ////Assert
-            //Assert.False(isDeleted);
         }
 
         #endregion

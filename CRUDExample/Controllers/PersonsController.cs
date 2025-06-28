@@ -1,6 +1,7 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Rotativa.AspNetCore;
+using Serilog;
 using ServiceContracts;
 using ServiceContracts.DTO;
 using ServiceContracts.Enums;
@@ -13,11 +14,14 @@ namespace CRUDExample.Controllers
         //private fields
         private readonly ICountriesService _countryService;
         private readonly IPersonsService _personsService;
+        private readonly ILogger<PersonsController> _logger;
 
-        public PersonsController(ICountriesService countriesService, IPersonsService personsService)
+        public PersonsController(ICountriesService countriesService, IPersonsService personsService, 
+            ILogger<PersonsController> logger)
         {
             _countryService = countriesService;
             _personsService = personsService;
+            _logger = logger;
         }
 
 
@@ -27,6 +31,9 @@ namespace CRUDExample.Controllers
                                     string sortBy = nameof(PersonResponse.PersonName),
                                     SortOrderOptions sortOrder = SortOrderOptions.ASCENDING)
         {
+            _logger.LogInformation("Index action method of PersonsController");
+
+            _logger.LogDebug($"searchBy : {searchBy}, searchString : {searchString}, sortOrder : {sortOrder}");
             ViewBag.SearchFields = new Dictionary<string, string>()
             {
                 {nameof(PersonResponse.PersonName), "Person Name" },
@@ -57,6 +64,8 @@ namespace CRUDExample.Controllers
         [HttpGet]
         public async Task<IActionResult> Create()
         {
+            _logger.LogInformation("Create action method of PersonsController");
+
             List<CountryResponse> countries = await _countryService.GetAllCountries();
             ViewBag.Countries = countries.Select(c => new SelectListItem { Text = c.CountryName, Value = c.CountryID.ToString() });
 
@@ -67,6 +76,8 @@ namespace CRUDExample.Controllers
         [HttpPost]
         public async Task<IActionResult> Create(PersonAddRequest personAddRequest)
         {
+            _logger.LogInformation("Create action method of PersonsController");
+
             if (!ModelState.IsValid) 
             {
                 List<CountryResponse> countries = await _countryService.GetAllCountries();
@@ -92,6 +103,8 @@ namespace CRUDExample.Controllers
         [HttpGet]
         public async Task<IActionResult> Edit(Guid personID)
         {
+            _logger.LogInformation("Edit action method of PersonsController");
+
             PersonResponse? personResponse = await _personsService.GetPersonByPersonID(personID);
 
             if (personResponse == null)
@@ -111,6 +124,7 @@ namespace CRUDExample.Controllers
         [HttpPost]
         public async Task<IActionResult> Edit(PersonUpdateRequest personUpdateRequest)
         {
+            _logger.LogInformation("Edit action method of PersonsController");
 
             PersonResponse? personResponse = await _personsService.GetPersonByPersonID(personUpdateRequest.PersonID);
 
@@ -147,6 +161,8 @@ namespace CRUDExample.Controllers
         [Route("[action]/{personID}")]
         public async Task<IActionResult> Delete(Guid? personID) 
         {
+            _logger.LogInformation("Delete action method of PersonsController");
+
             PersonResponse? personResponse = await _personsService.GetPersonByPersonID(personID);
 
             if(personResponse == null) { return RedirectToAction("Index"); }
@@ -158,6 +174,8 @@ namespace CRUDExample.Controllers
         [Route("[action]/{personID}")]
         public async Task<IActionResult> Delete(PersonResponse? personResponse) 
         {
+            _logger.LogInformation("Delete action method of PersonsController");
+
             PersonResponse? personResponseFromGet = await _personsService.GetPersonByPersonID(personResponse?.PersonID);
 
             if (personResponseFromGet == null) { return RedirectToAction("Index"); }
@@ -171,6 +189,8 @@ namespace CRUDExample.Controllers
         [Route("PeronsPDF")]
         public async Task<IActionResult> PersonsPDF()
         {
+            _logger.LogInformation("PersonsPDF action method of PersonsController");
+
             //Get list of persons
             List<PersonResponse> persons = await _personsService.GetAllPersons();
 
@@ -185,6 +205,8 @@ namespace CRUDExample.Controllers
         [Route("PersonsCSV")]
         public async Task<IActionResult> PersonsCSV()
         {
+            _logger.LogInformation("PersonsCSV action method of PersonsController");
+
             MemoryStream memoryStream = await _personsService.GetPersonsCSV();
 
             return File(memoryStream, "application/octet-stream", "persons.csv");
@@ -193,6 +215,8 @@ namespace CRUDExample.Controllers
         [Route("PersonsExcel")]
         public async Task<IActionResult> PersonsExcel()
         {
+            _logger.LogInformation("PersonsExcel action method of PersonsController");
+
             MemoryStream memoryStream = await _personsService.GetPersonsExcel();
 
             return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",

@@ -3,6 +3,7 @@ using System.Data;
 using Entities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Tokens;
 using OfficeOpenXml;
 using RepositoryContracts;
@@ -14,14 +15,18 @@ namespace Services
     public class CountriesService : ICountriesService
     {
         private readonly ICountriesRepository _countriesRepository;
+        private readonly ILogger<CountriesService> _logger;
 
-        public CountriesService(ICountriesRepository countriesRepository)
+        public CountriesService(ICountriesRepository countriesRepository, ILogger<CountriesService> logger)
         {
             _countriesRepository = countriesRepository;
+            _logger = logger;
         }
 
         async public Task<CountryResponse> AddCountry(CountryAddRequest? countryAddRequest)
         {
+            _logger.LogInformation("AddCountry of CountriesService");
+
             //Validation: countryAddRequest parameter can't be null
             if (countryAddRequest == null)
             {
@@ -54,11 +59,15 @@ namespace Services
 
         public async Task<List<CountryResponse>> GetAllCountries()
         {
+            _logger.LogInformation("GetAllCountries of CountriesService");
+
             return (await _countriesRepository.GetAllCountries()).Select(temp => temp.ToCountryResponse()).ToList();
         }
 
         public async Task<CountryResponse?> GetCountryByCountryID(Guid? countryID)
         {
+            _logger.LogInformation("GetCountryByCountryID of CountriesService");
+
             if (countryID == null) return null;
 
             Country? country = await _countriesRepository.GetCountryById(countryID.Value);
@@ -70,6 +79,8 @@ namespace Services
 
         public async Task<int> UploadCountriesFromExcelFile(IFormFile formFile)
         {
+            _logger.LogInformation("UploadCountriesFromExcelFile of CountriesService");
+
             MemoryStream memoryStream = new MemoryStream();
             await formFile.CopyToAsync(memoryStream);
             int countriesInserted = 0;

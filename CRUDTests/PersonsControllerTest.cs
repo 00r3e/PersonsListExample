@@ -4,10 +4,12 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
+using Castle.Core.Logging;
 using CRUDExample.Controllers;
 using FluentAssertions;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Data.SqlClient;
+using Microsoft.Extensions.Logging;
 using Moq;
 using ServiceContracts;
 using ServiceContracts.DTO;
@@ -19,9 +21,11 @@ namespace PersonsListTests
     {
         private readonly IPersonsService _personsService;
         private readonly ICountriesService _countriesService;
+        private readonly ILogger<PersonsController> _logger;
 
         private readonly Mock<IPersonsService> _personsServiceMock;
         private readonly Mock<ICountriesService> _countriesServiceMock;
+        private readonly Mock<ILogger<PersonsController>> _loggerMock;
 
         private readonly Fixture _fixure;
 
@@ -31,9 +35,11 @@ namespace PersonsListTests
 
             _personsServiceMock = new Mock<IPersonsService>();
             _countriesServiceMock = new Mock<ICountriesService>();
+            _loggerMock = new Mock<ILogger<PersonsController>>();
 
             _personsService = _personsServiceMock.Object;
             _countriesService = _countriesServiceMock.Object;
+            _logger = _loggerMock.Object;
         }
 
         #region Index
@@ -44,7 +50,7 @@ namespace PersonsListTests
             //Arrange
             List<PersonResponse> personsResponseList = _fixure.Create<List<PersonResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsService);
+            PersonsController personsController = new PersonsController(_countriesService, _personsService, _logger);
             
             _personsServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(personsResponseList);
@@ -75,7 +81,7 @@ namespace PersonsListTests
             PersonResponse personResponse = _fixure.Create<PersonResponse>();
             List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsService);
+            PersonsController personsController = new PersonsController(_countriesService, _personsService, _logger);
 
             _countriesServiceMock.Setup(temp => temp.GetAllCountries())
                 .ReturnsAsync(countries);
@@ -102,7 +108,7 @@ namespace PersonsListTests
             PersonResponse personResponse = _fixure.Create<PersonResponse>();
             List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsService);
+            PersonsController personsController = new PersonsController(_countriesService, _personsService, _logger);
 
             _countriesServiceMock.Setup(temp => temp.GetAllCountries())
                 .ReturnsAsync(countries);
@@ -129,7 +135,7 @@ namespace PersonsListTests
             PersonResponse personResponse = _fixure.Build<PersonResponse>().With(temp => temp.Gender, "Male").Create();
             List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsService);
+            PersonsController personsController = new PersonsController(_countriesService, _personsService , _logger);
 
             _countriesServiceMock.Setup(temp => temp.GetAllCountries())
                 .ReturnsAsync(countries);
@@ -160,7 +166,7 @@ namespace PersonsListTests
             PersonResponse personResponse = _fixure.Build<PersonResponse>().With(temp => temp.Gender, "Male").Create();
             List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsService);
+            PersonsController personsController = new PersonsController(_countriesService, _personsService , _logger);
 
             _countriesServiceMock.Setup(temp => temp.GetAllCountries())
                 .ReturnsAsync(countries);
@@ -188,7 +194,7 @@ namespace PersonsListTests
             PersonResponse personResponse = _fixure.Create<PersonResponse>();
             List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsService);
+            PersonsController personsController = new PersonsController(_countriesService, _personsService , _logger);
 
             _personsServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
                 .ReturnsAsync(personResponse);
@@ -213,7 +219,7 @@ namespace PersonsListTests
             PersonResponse personResponse = _fixure.Create<PersonResponse>();
             List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsService);
+            PersonsController personsController = new PersonsController(_countriesService, _personsService , _logger);
 
             _personsServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
                 .ReturnsAsync(personResponse);
@@ -228,9 +234,6 @@ namespace PersonsListTests
 
             redirectResult.ActionName.Should().Be("Index");
         }
-
-
-
 
         #endregion
     }

@@ -14,6 +14,9 @@ using CsvHelper.Configuration;
 using OfficeOpenXml;
 using RepositoryContracts;
 using System.Linq.Expressions;
+using Microsoft.Extensions.Logging;
+using Serilog;
+using SerilogTimings;
 
 namespace Services
 {
@@ -21,28 +24,25 @@ namespace Services
     {
         //private field
         private readonly IPersonsRepository _personsRepository;
+        private readonly ILogger<PersonsService> _logger;
+        private readonly IDiagnosticContext _diagnosticContext;
 
-        public PersonsService(IPersonsRepository personsRepository)
+        public PersonsService(IPersonsRepository personsRepository, ILogger<PersonsService> logger,
+            IDiagnosticContext diagnosticContext)
         {
-            _personsRepository= personsRepository;
+            _personsRepository = personsRepository;
+            _logger = logger;
+            _diagnosticContext = diagnosticContext;
         }
-
-        //private PersonResponse ConvertPersonToPersoneResponse(Person person)
-        //{
-        //    //Convert the Person Object into PersonResponse type
-        //    PersonResponse personResponse = person.ToPersonResponse();
-
-        //    personResponse.Country = person.Country?.CountryName;
-
-        //    return personResponse;
-        //}
 
         public async Task<PersonResponse> AddPerson(PersonAddRequest? personAddRequest)
         {
+            _logger.LogInformation("AddPerson of PersonsService");
+
             //Check if PersonAddRequest is not null
-            if (personAddRequest == null) 
-            { 
-                throw new ArgumentNullException(nameof(personAddRequest)); 
+            if (personAddRequest == null)
+            {
+                throw new ArgumentNullException(nameof(personAddRequest));
             }
 
             //Model Validation
@@ -63,6 +63,8 @@ namespace Services
 
         public async Task<List<PersonResponse>> GetAllPersons()
         {
+
+            _logger.LogInformation("GetAllPersons of PersonsService");
             var persons = await _personsRepository.GetAllPersons();
 
             return persons.Select(p => p.ToPersonResponse()).ToList();
@@ -70,14 +72,15 @@ namespace Services
 
         public async Task<PersonResponse?> GetPersonByPersonID(Guid? personID)
         {
-            if(!personID.HasValue)
+            _logger.LogInformation("GetPersonByPersonID of PersonsService");
+            if (!personID.HasValue)
             {
                 return null;
             }
 
             Person? person = await _personsRepository.GetPersonById(personID.Value);
 
-            if (person == null) 
+            if (person == null)
             {
                 return null;
             }
@@ -87,40 +90,53 @@ namespace Services
 
         public async Task<List<PersonResponse>> GetFilteredPersons(string searchBy, string? searchString)
         {
-            List<Person> persons = searchBy switch
+
+            _logger.LogInformation("GetFilteredPersons of PersonsService");
+
+            List<Person> persons;
+
+            using (Operation.Time("Time for Filtered Persons from database"))
             {
-                nameof(PersonResponse.PersonName) =>
-                 await _personsRepository.GetFilteredPersons(temp =>
-                 temp.PersonName.Contains(searchString)),
+                persons = searchBy switch
+                {
+                    nameof(PersonResponse.PersonName) =>
+                     await _personsRepository.GetFilteredPersons(temp =>
+                     temp.PersonName.Contains(searchString)),
 
-                nameof(PersonResponse.Email) =>
-                 await _personsRepository.GetFilteredPersons(temp =>
-                 temp.Email.Contains(searchString)),
+                    nameof(PersonResponse.Email) =>
+                     await _personsRepository.GetFilteredPersons(temp =>
+                     temp.Email.Contains(searchString)),
 
-                nameof(PersonResponse.DateOfBirth) =>
-                 await _personsRepository.GetFilteredPersons(temp =>
-                 temp.DateOfBirth.Value.ToString().Contains(searchString)),
+                    nameof(PersonResponse.DateOfBirth) =>
+                     await _personsRepository.GetFilteredPersons(temp =>
+                     temp.DateOfBirth.Value.ToString().Contains(searchString)),
 
 
-                nameof(PersonResponse.Gender) =>
-                 await _personsRepository.GetFilteredPersons(temp =>
-                 temp.Gender.Contains(searchString)),
+                    nameof(PersonResponse.Gender) =>
+                     await _personsRepository.GetFilteredPersons(temp =>
+                     temp.Gender.Contains(searchString)),
 
-                nameof(PersonResponse.CountryID) =>
-                 await _personsRepository.GetFilteredPersons(temp =>
-                 temp.Country.CountryName.Contains(searchString)),
+                    nameof(PersonResponse.CountryID) =>
+                     await _personsRepository.GetFilteredPersons(temp =>
+                     temp.Country.CountryName.Contains(searchString)),
 
-                nameof(PersonResponse.Address) =>
-                await _personsRepository.GetFilteredPersons(temp =>
-                temp.Address.Contains(searchString)),
+                    nameof(PersonResponse.Address) =>
+                    await _personsRepository.GetFilteredPersons(temp =>
+                    temp.Address.Contains(searchString)),
 
-                _ => await _personsRepository.GetAllPersons()
-            };
+                    _ => await _personsRepository.GetAllPersons()
+                };
+            }
+
+            _diagnosticContext.Set("Persons", persons);
+
             return persons.Select(temp => temp.ToPersonResponse()).ToList();
         }
 
         public async Task<List<PersonResponse>> GetSortedPersons(List<PersonResponse> allPersons, string sortBy, SortOrderOptions sortOrder)
         {
+            _logger.LogInformation("GetSortedPersons of PersonsService");
+
             if (string.IsNullOrEmpty(sortBy))
             {
                 return allPersons;
@@ -185,6 +201,8 @@ namespace Services
 
         public async Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest)
         {
+            _logger.LogInformation("UpdatePerson of PersonsService");
+
             if (personUpdateRequest == null)
             {
                 throw new ArgumentNullException(nameof(Person));
@@ -196,7 +214,7 @@ namespace Services
             //get matching person object to update
             Person? matchingPerson = await _personsRepository.GetPersonById(personUpdateRequest.PersonID);
 
-            if (matchingPerson == null) 
+            if (matchingPerson == null)
             {
                 throw new ArgumentException("Given person id doesn't exist");
             }
@@ -216,20 +234,27 @@ namespace Services
 
         public async Task<bool> DeletePerson(Guid? personID)
         {
-            if(personID == null)
+            _logger.LogInformation("DeletePerson of PersonsService");
+
+            if (personID == null)
             {
                 throw new ArgumentNullException(nameof(personID));
             }
 
             Person? person = await _personsRepository.GetPersonById(personID.Value);
-            if(person == null) { return false; }
+            if (person == null) { return false; }
 
-            await _personsRepository.DeletePersonByPersonID(personID.Value);
+            using (Operation.Time("Time for Delete a Person from database"))
+            {
+                await _personsRepository.DeletePersonByPersonID(personID.Value);
+            }
             return true;
         }
 
         public async Task<MemoryStream> GetPersonsCSV()
         {
+            _logger.LogInformation("GetPersonsCSV of PersonsService");
+
             MemoryStream memoryStream = new MemoryStream();
 
             StreamWriter writer = new StreamWriter(memoryStream);
@@ -250,8 +275,8 @@ namespace Services
 
             List<PersonResponse> responseList = await GetAllPersons();
 
-            foreach (PersonResponse response in responseList) 
-            { 
+            foreach (PersonResponse response in responseList)
+            {
                 csvWriter.WriteField(response.PersonName);
                 csvWriter.WriteField(response.Email);
                 csvWriter.WriteField(response.DateOfBirth?.ToString("dd-MM-yyyy"));
@@ -271,6 +296,8 @@ namespace Services
 
         public async Task<MemoryStream> GetPersonsExcel()
         {
+            _logger.LogInformation("GetPersonsExcel of PersonsService");
+
             MemoryStream memoryStream = new MemoryStream();
 
             using (ExcelPackage excelPackage = new ExcelPackage(memoryStream))
@@ -296,7 +323,7 @@ namespace Services
 
                 int row = 2;
                 List<PersonResponse> personsList = await GetAllPersons();
-                
+
                 foreach (PersonResponse personResponse in personsList)
                 {
                     excelWorksheet.Cells[row, 1].Value = personResponse.PersonName;
@@ -318,7 +345,7 @@ namespace Services
 
                 await excelPackage.SaveAsync();
             }
-            
+
             memoryStream.Position = 0;
             return memoryStream;
         }
