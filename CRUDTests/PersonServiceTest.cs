@@ -1,6 +1,4 @@
-﻿using System;
-
-using ServiceContracts;
+﻿using ServiceContracts;
 using ServiceContracts.DTO;
 using Services;
 using ServiceContracts.Enums;
@@ -23,9 +21,7 @@ namespace CRUDTests
 {
     public class PersonServiceTest
     {
-
         private readonly IPersonsService _personsService;
-
 
         private readonly Mock<IPersonsRepository> _personsRepositoryMock;
         private readonly IPersonsRepository _personsRepository;

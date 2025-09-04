@@ -25,7 +25,7 @@ namespace Services
 
         async public Task<CountryResponse> AddCountry(CountryAddRequest? countryAddRequest)
         {
-            _logger.LogInformation("AddCountry of CountriesService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(AddCountry), nameof(CountriesService));
 
             //Validation: countryAddRequest parameter can't be null
             if (countryAddRequest == null)
@@ -59,14 +59,15 @@ namespace Services
 
         public async Task<List<CountryResponse>> GetAllCountries()
         {
-            _logger.LogInformation("GetAllCountries of CountriesService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetAllCountries), nameof(CountriesService));
+
 
             return (await _countriesRepository.GetAllCountries()).Select(temp => temp.ToCountryResponse()).ToList();
         }
 
         public async Task<CountryResponse?> GetCountryByCountryID(Guid? countryID)
         {
-            _logger.LogInformation("GetCountryByCountryID of CountriesService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetCountryByCountryID), nameof(CountriesService));
 
             if (countryID == null) return null;
 
@@ -79,7 +80,7 @@ namespace Services
 
         public async Task<int> UploadCountriesFromExcelFile(IFormFile formFile)
         {
-            _logger.LogInformation("UploadCountriesFromExcelFile of CountriesService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(UploadCountriesFromExcelFile), nameof(CountriesService));
 
             MemoryStream memoryStream = new MemoryStream();
             await formFile.CopyToAsync(memoryStream);

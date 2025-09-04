@@ -1,4 +1,5 @@
 ﻿using System.Drawing.Text;
+using CRUDExample.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using ServiceContracts;
 
@@ -9,15 +10,19 @@ namespace PersonsListExample.Controllers
     {
 
         private readonly ICountriesService _countriesService;
+        private readonly ILogger<CountriesController> _logger;
 
-        public CountriesController(ICountriesService countriesService)
+        public CountriesController(ICountriesService countriesService, ILogger<CountriesController> logger)
         {
             _countriesService = countriesService;
+            _logger = logger;
         }
 
         [Route("[action]")]
         public IActionResult UploadFromExcel()
         {
+            _logger.LogInformation("{MetodName} action method of {ControllerName}", nameof(UploadFromExcel), nameof(CountriesController));
+
             return View();
         }
 
@@ -26,6 +31,8 @@ namespace PersonsListExample.Controllers
         [Route("[action]")]
         public async Task<IActionResult> UploadFromExcel(IFormFile excelFile)
         {
+            _logger.LogInformation("{MetodName} action method of {ControllerName}",  nameof(UploadFromExcel), nameof(CountriesController));
+
             if (excelFile == null || excelFile.Length == 0)
             {
                 ViewBag.ErrorMessage = "Select an xlsx file";

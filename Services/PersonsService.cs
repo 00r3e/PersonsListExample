@@ -37,7 +37,7 @@ namespace Services
 
         public async Task<PersonResponse> AddPerson(PersonAddRequest? personAddRequest)
         {
-            _logger.LogInformation("AddPerson of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(AddPerson), nameof(PersonsService));
 
             //Check if PersonAddRequest is not null
             if (personAddRequest == null)
@@ -63,8 +63,8 @@ namespace Services
 
         public async Task<List<PersonResponse>> GetAllPersons()
         {
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetAllPersons), nameof(PersonsService));
 
-            _logger.LogInformation("GetAllPersons of PersonsService");
             var persons = await _personsRepository.GetAllPersons();
 
             return persons.Select(p => p.ToPersonResponse()).ToList();
@@ -72,7 +72,8 @@ namespace Services
 
         public async Task<PersonResponse?> GetPersonByPersonID(Guid? personID)
         {
-            _logger.LogInformation("GetPersonByPersonID of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetPersonByPersonID), nameof(PersonsService));
+
             if (!personID.HasValue)
             {
                 return null;
@@ -90,8 +91,7 @@ namespace Services
 
         public async Task<List<PersonResponse>> GetFilteredPersons(string searchBy, string? searchString)
         {
-
-            _logger.LogInformation("GetFilteredPersons of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetFilteredPersons), nameof(PersonsService));
 
             List<Person> persons;
 
@@ -135,7 +135,7 @@ namespace Services
 
         public async Task<List<PersonResponse>> GetSortedPersons(List<PersonResponse> allPersons, string sortBy, SortOrderOptions sortOrder)
         {
-            _logger.LogInformation("GetSortedPersons of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetSortedPersons), nameof(PersonsService));
 
             if (string.IsNullOrEmpty(sortBy))
             {
@@ -201,7 +201,8 @@ namespace Services
 
         public async Task<PersonResponse> UpdatePerson(PersonUpdateRequest? personUpdateRequest)
         {
-            _logger.LogInformation("UpdatePerson of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(UpdatePerson), nameof(PersonsService));
+
 
             if (personUpdateRequest == null)
             {
@@ -234,7 +235,7 @@ namespace Services
 
         public async Task<bool> DeletePerson(Guid? personID)
         {
-            _logger.LogInformation("DeletePerson of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(DeletePerson), nameof(PersonsService));
 
             if (personID == null)
             {
@@ -253,7 +254,7 @@ namespace Services
 
         public async Task<MemoryStream> GetPersonsCSV()
         {
-            _logger.LogInformation("GetPersonsCSV of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetPersonsCSV), nameof(PersonsService));
 
             MemoryStream memoryStream = new MemoryStream();
 
@@ -296,7 +297,7 @@ namespace Services
 
         public async Task<MemoryStream> GetPersonsExcel()
         {
-            _logger.LogInformation("GetPersonsExcel of PersonsService");
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetPersonsExcel), nameof(PersonsService));
 
             MemoryStream memoryStream = new MemoryStream();
 
