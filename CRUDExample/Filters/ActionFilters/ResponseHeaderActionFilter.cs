@@ -44,7 +44,7 @@ namespace PersonsListExample.Filters.ActionFilters
             _logger = logger;
         }
 
-        public  async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
+        public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
             //on action executing
             _logger.LogInformation("{FilterName}.{MethodName} method - before", nameof(ResponseHeaderActionFilter)

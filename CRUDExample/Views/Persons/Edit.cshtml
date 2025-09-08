@@ -3,11 +3,25 @@
 	ViewBag.Title = "Edit Person";
 }
 
-<a href="~/persons/index" class="link-hover">Back to Persons List</a>
-<h2>Edit Person</h2>
+<!-- breadcrumb starts -->
+<div class="flex">
+	<div class="flex-1">
+		<div class="text-grey">
+			<span>Contacts</span>
+			<i class="fa-solid fa-caret-right"></i>
+			<span class="text-grey">Persons</span>
+			<i class="fa-solid fa-caret-right"></i>
+			<span class="text-grey">Edit</span>
+		</div>
+	</div>
+</div>
+<!-- breadcrumb ends -->
 
-<div class="w-50">
+<div class="form-container">
 	<form asp-controller="Persons" asp-action="Edit" method="post">
+
+		<a href="~/persons/index" class="link-hover">Back to Persons List</a>
+		<h2 class="text-large">Edit Person</h2>
 
 		@*Person Name*@
 		<div class="form-field flex">

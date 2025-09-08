@@ -3,6 +3,7 @@ using CRUDExample.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.Extensions.Logging;
 using ServiceContracts.DTO;
+using ServiceContracts.Enums;
 
 namespace PersonsListExample.Filters.ActionFilters
 {
@@ -25,35 +26,43 @@ namespace PersonsListExample.Filters.ActionFilters
 
             if (parameters != null) 
             {
-                if (parameters.ContainsKey("CurrentSearchBy"))
+                if (parameters.ContainsKey("searchBy"))
                 {
-                    personsController.ViewData["CurrentSearchBy"] = Convert.ToString(parameters["CurrentSearchBy"]);
-                };
-            };
+                    personsController.ViewData["CurrentSearchBy"] = Convert.ToString(parameters["searchBy"]);
+                }
+            }
 
             if (parameters != null)
             {
-                if (parameters.ContainsKey("CurrentSearchString"))
+                if (parameters.ContainsKey("searchString"))
                 {
-                    personsController.ViewData["CurrentSearchString"] = Convert.ToString(parameters["CurrentSearchString"]);
-                };
-            };
+                    personsController.ViewData["CurrentSearchString"] = Convert.ToString(parameters["searchString"]);
+                }
+            }
 
             if (parameters != null)
             {
-                if (parameters.ContainsKey("CurrentSortBy"))
+                if (parameters.ContainsKey("sortBy"))
                 {
-                    personsController.ViewData["CurrentSortBy"] = Convert.ToString(parameters["CurrentSortBy"]);
-                };
-            };
+                    personsController.ViewData["CurrentSortBy"] = Convert.ToString(parameters["sortBy"]);
+                }
+                else
+                {
+                    personsController.ViewData["CurrentSortBy"] = nameof(PersonResponse.PersonName);
+                }
+            }
 
             if (parameters != null)
             {
-                if (parameters.ContainsKey("CurrentSortOrder"))
+                if (parameters.ContainsKey("sortOrder"))
                 {
-                    personsController.ViewData["CurrentSortOrder"] = Convert.ToString(parameters["CurrentSortOrder"]);
-                };
-            };
+                    personsController.ViewData["CurrentSortOrder"] = Convert.ToString(parameters["sortOrder"]);
+                }
+                else
+                {
+                    personsController.ViewData["CurrentSortOrder"] = nameof(SortOrderOptions.ASCENDING);
+                }
+            }
 
             personsController.ViewBag.SearchFields = new Dictionary<string, string>()
             {

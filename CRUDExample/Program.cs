@@ -7,6 +7,8 @@ using Repositories;
 using Microsoft.Extensions.DependencyInjection;
 using Serilog;
 using PersonsListExample.Filters.ActionFilters;
+using PersonsListExample;
+using PersonsListExample.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -20,34 +22,8 @@ builder.Host.UseSerilog( (HostBuilderContext context, IServiceProvider service, 
         .ReadFrom.Services(service); // Read app's services 
 });
 
-//adds controllers and views as services
-builder.Services.AddControllersWithViews(options =>
-{
-    ////without argument values
-    //options.Filters.Add<ResponseHeaderActionFilter>(5); 
 
-    var logger = builder.Services.BuildServiceProvider().GetRequiredService<ILogger<ResponseHeaderActionFilter>>();
-
-    options.Filters.Add(new ResponseHeaderActionFilter(logger) {Key = "X-Global-Custom-Key", Value = "Global-Custom-Value", Order = 2 });
-});
-
-//add services into IoC Container
-builder.Services.AddScoped<ICountriesService, CountriesService>();
-builder.Services.AddScoped<IPersonsService, PersonsService>();
-builder.Services.AddScoped<IPersonsRepository, PersonsRepository>();
-builder.Services.AddScoped<ICountriesRepository, CountriesRepository>();
-builder.Services.AddHttpLogging(logging =>
-{
-    logging.LoggingFields = Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.RequestProperties |
-    Microsoft.AspNetCore.HttpLogging.HttpLoggingFields.ResponsePropertiesAndHeaders;
-});
-
-builder.Services.AddDbContext<ApplicationDbContext>(options =>
-{
-    options.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"))/*.EnableSensitiveDataLogging()*/;
-});
-
-builder.Services.AddTransient<ResponseHeaderActionFilter>();
+builder.Services.ConfigureServices(builder.Configuration);
 
 
 
@@ -61,6 +37,11 @@ var app = builder.Build();
 if (builder.Environment.IsDevelopment())
 {
     app.UseDeveloperExceptionPage();
+}
+else
+{
+    app.UseExceptionHandler("/Error");
+    app.UseExceptionHandlingMiddleware();
 }
 
 app.UseSerilogRequestLogging();

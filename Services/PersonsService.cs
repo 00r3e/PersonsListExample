@@ -17,6 +17,7 @@ using System.Linq.Expressions;
 using Microsoft.Extensions.Logging;
 using Serilog;
 using SerilogTimings;
+using Exceptions;
 
 namespace Services
 {
@@ -217,7 +218,7 @@ namespace Services
 
             if (matchingPerson == null)
             {
-                throw new ArgumentException("Given person id doesn't exist");
+                throw new InvalidPersonIDException("Given person id doesn't exist");
             }
 
             matchingPerson.PersonName = personUpdateRequest.PersonName;

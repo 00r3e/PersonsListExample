@@ -5,6 +5,7 @@ using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
+using CsvHelper;
 using Entities;
 using Fizzler.Systems.HtmlAgilityPack;
 using FluentAssertions;
@@ -199,23 +200,35 @@ namespace PersonsListTests
         [Fact]
         public async Task Delete_ToReturnView()
         {
-            //Arange
-            PersonResponse personResponse = _fixture.Build<PersonResponse>()
+            // Arrange
+            var personsServiceMock = new Mock<IPersonsService>();
+            var factory = new CustomWebApplicationFactory();
+
+            factory.ConfigureTestServicesAction = services =>
+            {
+                services.AddSingleton(personsServiceMock.Object);
+            };
+
+            var client = factory.CreateClient();
+
+            var fixture = new Fixture();
+
+            PersonResponse personResponse = fixture.Build<PersonResponse>() // ✅ use local fixture
                 .With(temp => temp.Email, "example1@example.com")
                 .With(temp => temp.PersonName, "ExampleName").Create();
 
-            _personsServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>())).ReturnsAsync(personResponse);
+            personsServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>())) // ✅ use local mock
+                .ReturnsAsync(personResponse);
 
-            //Act
-            HttpResponseMessage response = await _client.GetAsync($"Persons/Delete/{personResponse.PersonID}");
-            
-            //Assert
+            // Act
+            HttpResponseMessage response = await client.GetAsync($"Persons/Delete/{personResponse.PersonID}"); // ✅ use local client
+
+            // Assert
             response.Should().BeSuccessful();
 
             string responseBody = await response.Content.ReadAsStringAsync();
 
             HtmlDocument htmlDocument = new HtmlDocument();
-
             htmlDocument.LoadHtml(responseBody);
 
             var document = htmlDocument.DocumentNode;
