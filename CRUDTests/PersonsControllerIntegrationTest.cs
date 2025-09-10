@@ -24,17 +24,32 @@ namespace PersonsListTests
     {
         private readonly HttpClient _client;
 
-        private readonly Mock<IPersonsService> _personsServiceMock;
+        private readonly Mock<IPersonsGetterService> _personsGetterServiceMock;
+        private readonly Mock<IPersonsAdderService> _personsAdderServiceMock;
+        private readonly Mock<IPersonsDeleterService> _personsDeleterServiceMock;
+        private readonly Mock<IPersonsUpdaterService> _personsUpdaterServiceMock;
+        private readonly Mock<IPersonsSorterService> _personsSorterServiceMock;
+
 
         private readonly IFixture _fixture;
 
         public PersonsControllerIntegrationTest(CustomWebApplicationFactory webAppFactory)
         {
-            _personsServiceMock = new Mock<IPersonsService>();
+            _personsGetterServiceMock = new Mock<IPersonsGetterService>();
+            _personsAdderServiceMock = new Mock<IPersonsAdderService>();
+            _personsDeleterServiceMock = new Mock<IPersonsDeleterService>();
+            _personsUpdaterServiceMock = new Mock<IPersonsUpdaterService>();
+            _personsSorterServiceMock = new Mock<IPersonsSorterService>();
+
 
             webAppFactory.ConfigureTestServicesAction = services =>
             {
-                services.AddSingleton(_personsServiceMock.Object);
+                services.AddSingleton(_personsGetterServiceMock.Object);
+                services.AddSingleton(_personsAdderServiceMock.Object);
+                services.AddSingleton(_personsDeleterServiceMock.Object);
+                services.AddSingleton(_personsUpdaterServiceMock.Object);
+                services.AddSingleton(_personsSorterServiceMock.Object);
+
             };
 
             _client = webAppFactory.CreateClient();
@@ -48,9 +63,9 @@ namespace PersonsListTests
         public async Task Index_ToReturnView()
         {
             //Arange
-            _personsServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
+            _personsGetterServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(new List<PersonResponse>());
-            _personsServiceMock.Setup(s => s.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
+            _personsSorterServiceMock.Setup(s => s.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
                            .ReturnsAsync(new List<PersonResponse>());
             //Act
             HttpResponseMessage response = await _client.GetAsync("Persons/Index");
@@ -82,9 +97,9 @@ namespace PersonsListTests
                 .With(temp => temp.PersonName, "ExampleName").Create(),
             };
 
-            _personsServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
+            _personsGetterServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(personsResponseList);
-            _personsServiceMock.Setup(s => s.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
+            _personsSorterServiceMock.Setup(s => s.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
                            .ReturnsAsync(personsResponseList);
 
             // Act
@@ -158,13 +173,13 @@ namespace PersonsListTests
                 .With(temp => temp.PersonName, "ExampleName3").Create(),
             };
 
-            _personsServiceMock.Setup(temp => temp.AddPerson(It.IsAny<PersonAddRequest>()))
+            _personsAdderServiceMock.Setup(temp => temp.AddPerson(It.IsAny<PersonAddRequest>()))
                 .ReturnsAsync(It.IsAny<PersonResponse>());
             
-            _personsServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
+            _personsGetterServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(personsResponseList);
 
-            _personsServiceMock.Setup(temp => temp.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
+            _personsSorterServiceMock.Setup(temp => temp.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
                 .ReturnsAsync(personsResponseList);
 
             // Act
@@ -201,7 +216,7 @@ namespace PersonsListTests
         public async Task Delete_ToReturnView()
         {
             // Arrange
-            var personsServiceMock = new Mock<IPersonsService>();
+            var personsServiceMock = new Mock<IPersonsGetterService>();
             var factory = new CustomWebApplicationFactory();
 
             factory.ConfigureTestServicesAction = services =>
@@ -247,10 +262,10 @@ namespace PersonsListTests
                 .With(temp => temp.Gender, "Other")
                 .Create();
 
-            _personsServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
+            _personsGetterServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
                 .ReturnsAsync(personResponse);
 
-            _personsServiceMock.Setup(temp => temp.DeletePerson(It.IsAny<Guid>()))
+            _personsDeleterServiceMock.Setup(temp => temp.DeletePerson(It.IsAny<Guid>()))
                 .ReturnsAsync(true);
 
             // Act
@@ -280,10 +295,10 @@ namespace PersonsListTests
                 .With(temp => temp.PersonName, "ExampleName3").Create(),
             };
 
-            _personsServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
+            _personsGetterServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(personsResponseList);
 
-            _personsServiceMock.Setup(temp => temp.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
+            _personsSorterServiceMock.Setup(temp => temp.GetSortedPersons(It.IsAny<List<PersonResponse>>(), It.IsAny<string>(), It.IsAny<SortOrderOptions>()))
                 .ReturnsAsync(personsResponseList);
 
             var content = new FormUrlEncodedContent(formData);

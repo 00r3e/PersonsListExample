@@ -21,15 +21,26 @@ namespace CRUDExample.Controllers
     public class PersonsController : Controller
     {
         //private fields
-        private readonly ICountriesService _countriesService;
-        private readonly IPersonsService _personsService;
+        private readonly ICountriesGetterService _countriesService;
+        private readonly IPersonsGetterService _personsGetterService;
+        private readonly IPersonsAdderService _personsAdderService;
+        private readonly IPersonsDeleterService _personsDeleterService;
+        private readonly IPersonsSorterService _personsSorterService;
+        private readonly IPersonsUpdaterService _personsUpdaterService;
         private readonly ILogger<PersonsController> _logger;
 
-        public PersonsController(ICountriesService countriesService, IPersonsService personsService,
+        public PersonsController(ICountriesGetterService countriesService, IPersonsGetterService personsGetterService,
+            IPersonsAdderService personsAdderService, IPersonsDeleterService personsDeleterService,
+            IPersonsSorterService personsSorterService, IPersonsUpdaterService personsUpdaterService, 
             ILogger<PersonsController> logger)
         {
             _countriesService = countriesService;
-            _personsService = personsService;
+            _personsGetterService = personsGetterService;
+            _personsAdderService = personsAdderService;
+            _personsSorterService = personsSorterService;
+            _personsDeleterService = personsDeleterService;
+            _personsUpdaterService = personsUpdaterService;
+
             _logger = logger;
         }
 
@@ -52,10 +63,10 @@ namespace CRUDExample.Controllers
             
 
             //Filtered Persons
-            List<PersonResponse> persons = await _personsService.GetFilteredPersons(searchBy, searchString);
+            List<PersonResponse> persons = await _personsGetterService.GetFilteredPersons(searchBy, searchString);
 
             //Sorting Persons
-            persons = await _personsService.GetSortedPersons(persons, sortBy, sortOrder);
+            persons = await _personsSorterService.GetSortedPersons(persons, sortBy, sortOrder);
 
             return View(persons);
         }
@@ -85,7 +96,7 @@ namespace CRUDExample.Controllers
             _logger.LogInformation("{MetodName} action method of {ControllerName}",  nameof(Create), nameof(PersonsController));
 
             //call the service method
-            PersonResponse personResponse = await _personsService.AddPerson(personRequest);
+            PersonResponse personResponse = await _personsAdderService.AddPerson(personRequest);
 
             //navigate to Index action method (it makes another get request to "persons/index")
             return RedirectToAction("Index","Persons");
@@ -99,7 +110,7 @@ namespace CRUDExample.Controllers
         {
             _logger.LogInformation("{MetodName} action method of {ControllerName}", nameof(Edit), nameof(PersonsController));
 
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonID(personID);
+            PersonResponse? personResponse = await _personsGetterService.GetPersonByPersonID(personID);
 
             if (personResponse == null)
             {
@@ -123,14 +134,14 @@ namespace CRUDExample.Controllers
         {
             _logger.LogInformation("{MetodName} action method of {ControllerName}", nameof(Edit), nameof(PersonsController));
 
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonID(personRequest.PersonID);
+            PersonResponse? personResponse = await _personsGetterService.GetPersonByPersonID(personRequest.PersonID);
 
             if (personResponse == null)
             {
                 return RedirectToAction("Index");
             }
 
-            PersonResponse? personResponseFromUpdate = await _personsService.UpdatePerson(personRequest);
+            PersonResponse? personResponseFromUpdate = await _personsUpdaterService.UpdatePerson(personRequest);
 
             if(personResponse == null)
             {
@@ -146,7 +157,7 @@ namespace CRUDExample.Controllers
         {
             _logger.LogInformation("{MetodName} action method of {ControllerName}", nameof(Delete), nameof(PersonsController));
 
-            PersonResponse? personResponse = await _personsService.GetPersonByPersonID(personID);
+            PersonResponse? personResponse = await _personsGetterService.GetPersonByPersonID(personID);
 
             if(personResponse == null) { return RedirectToAction("Index"); }
 
@@ -159,11 +170,11 @@ namespace CRUDExample.Controllers
         {
             _logger.LogInformation("{MetodName} action method of {ControllerName}",  nameof(Delete), nameof(PersonsController));
 
-            PersonResponse? personResponseFromGet = await _personsService.GetPersonByPersonID(personResponse?.PersonID);
+            PersonResponse? personResponseFromGet = await _personsGetterService.GetPersonByPersonID(personResponse?.PersonID);
 
             if (personResponseFromGet == null) { return RedirectToAction("Index"); }
 
-            bool isDeleted = await _personsService.DeletePerson(personResponse?.PersonID);
+            bool isDeleted = await _personsDeleterService.DeletePerson(personResponse?.PersonID);
 
             if (isDeleted) { return RedirectToAction("Index"); }
             
@@ -175,7 +186,7 @@ namespace CRUDExample.Controllers
             _logger.LogInformation("{MetodName} action method of {ControllerName}", nameof(PersonsPDF), nameof(PersonsController));
 
             //Get list of persons
-            List<PersonResponse> persons = await _personsService.GetAllPersons();
+            List<PersonResponse> persons = await _personsGetterService.GetAllPersons();
 
             //Return view as pdf
             return new ViewAsPdf("PersonsPDF", persons, ViewData)
@@ -190,7 +201,7 @@ namespace CRUDExample.Controllers
         {
             _logger.LogInformation("{MetodName} action method of {ControllerName}", nameof(PersonsCSV), nameof(PersonsController));
 
-            MemoryStream memoryStream = await _personsService.GetPersonsCSV();
+            MemoryStream memoryStream = await _personsGetterService.GetPersonsCSV();
 
             return File(memoryStream, "application/octet-stream", "persons.csv");
         }
@@ -200,7 +211,7 @@ namespace CRUDExample.Controllers
         {
             _logger.LogInformation("{Methodname} action method of {ControllerName}", nameof(PersonsExcel), nameof(PersonsController));
 
-            MemoryStream memoryStream = await _personsService.GetPersonsExcel();
+            MemoryStream memoryStream = await _personsGetterService.GetPersonsExcel();
 
             return File(memoryStream, "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
                 "persons.xlsx");

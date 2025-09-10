@@ -12,12 +12,12 @@ using ServiceContracts.DTO;
 
 namespace Services
 {
-    public class CountriesService : ICountriesService
+    public class CountriesGetterService : ICountriesGetterService
     {
         private readonly ICountriesRepository _countriesRepository;
-        private readonly ILogger<CountriesService> _logger;
+        private readonly ILogger<CountriesGetterService> _logger;
 
-        public CountriesService(ICountriesRepository countriesRepository, ILogger<CountriesService> logger)
+        public CountriesGetterService(ICountriesRepository countriesRepository, ILogger<CountriesGetterService> logger)
         {
             _countriesRepository = countriesRepository;
             _logger = logger;
@@ -25,7 +25,7 @@ namespace Services
 
         async public Task<CountryResponse> AddCountry(CountryAddRequest? countryAddRequest)
         {
-            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(AddCountry), nameof(CountriesService));
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(AddCountry), nameof(CountriesGetterService));
 
             //Validation: countryAddRequest parameter can't be null
             if (countryAddRequest == null)
@@ -59,7 +59,7 @@ namespace Services
 
         public async Task<List<CountryResponse>> GetAllCountries()
         {
-            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetAllCountries), nameof(CountriesService));
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetAllCountries), nameof(CountriesGetterService));
 
 
             return (await _countriesRepository.GetAllCountries()).Select(temp => temp.ToCountryResponse()).ToList();
@@ -67,7 +67,7 @@ namespace Services
 
         public async Task<CountryResponse?> GetCountryByCountryID(Guid? countryID)
         {
-            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetCountryByCountryID), nameof(CountriesService));
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(GetCountryByCountryID), nameof(CountriesGetterService));
 
             if (countryID == null) return null;
 
@@ -80,7 +80,7 @@ namespace Services
 
         public async Task<int> UploadCountriesFromExcelFile(IFormFile formFile)
         {
-            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(UploadCountriesFromExcelFile), nameof(CountriesService));
+            _logger.LogInformation("{MethodName} of {ServiceName}", nameof(UploadCountriesFromExcelFile), nameof(CountriesGetterService));
 
             MemoryStream memoryStream = new MemoryStream();
             await formFile.CopyToAsync(memoryStream);

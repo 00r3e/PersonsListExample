@@ -9,12 +9,12 @@ namespace PersonsListExample.Controllers
     public class CountriesController : Controller
     {
 
-        private readonly ICountriesService _countriesService;
+        private readonly ICountriesUploaderFromExcelService _countriesUploadFromExcelService;
         private readonly ILogger<CountriesController> _logger;
 
-        public CountriesController(ICountriesService countriesService, ILogger<CountriesController> logger)
+        public CountriesController(ICountriesUploaderFromExcelService countriesUploadFromExcelService, ILogger<CountriesController> logger)
         {
-            _countriesService = countriesService;
+            _countriesUploadFromExcelService = countriesUploadFromExcelService;
             _logger = logger;
         }
 
@@ -43,7 +43,7 @@ namespace PersonsListExample.Controllers
                 ViewBag.ErrorMessage = "Unsupported file. Select an xlsx file";
                 return View();
             }
-            int countriesCountInserted = await _countriesService.UploadCountriesFromExcelFile(excelFile);
+            int countriesCountInserted = await _countriesUploadFromExcelService.UploadCountriesFromExcelFile(excelFile);
 
             ViewBag.Message = $"{countriesCountInserted} Countries Uploaded";
 

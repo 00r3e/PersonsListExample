@@ -39,7 +39,7 @@ namespace PersonsListTests
                 });
 
                 var descriptorIPersonService = services.SingleOrDefault(
-                d => d.ServiceType == typeof(IPersonsService));
+                d => d.ServiceType == typeof(IPersonsGetterService));
 
                 if (descriptorIPersonService != null)
                     services.Remove(descriptorIPersonService);

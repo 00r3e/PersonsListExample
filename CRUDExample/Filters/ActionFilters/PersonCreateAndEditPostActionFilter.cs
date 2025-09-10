@@ -8,8 +8,8 @@ namespace PersonsListExample.Filters.ActionFilters
 {
     public class PersonCreateAndEditPostActionFilter : IAsyncActionFilter
     {
-        private readonly ICountriesService _countriesService;
-        public PersonCreateAndEditPostActionFilter(ICountriesService countriesService)
+        private readonly ICountriesGetterService _countriesService;
+        public PersonCreateAndEditPostActionFilter(ICountriesGetterService countriesService)
         {
             _countriesService = countriesService;
         }

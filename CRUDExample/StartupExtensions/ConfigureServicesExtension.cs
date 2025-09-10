@@ -25,8 +25,15 @@ namespace PersonsListExample
             });
 
             //add services into IoC Container
-            services.AddScoped<ICountriesService, CountriesService>();
-            services.AddScoped<IPersonsService, PersonsService>();
+            services.AddScoped<ICountriesGetterService, CountriesGetterService>();
+            services.AddScoped<ICountriesUploaderFromExcelService, CountriesUploaderFromExcelService>();
+            services.AddScoped<ICountriesAdderService, CountriesAdderService>();
+
+            services.AddScoped<IPersonsGetterService, PersonsGetterService>();
+            services.AddScoped<IPersonsAdderService, PersonsAdderService>();
+            services.AddScoped<IPersonsDeleterService, PersonsDeleterService>();
+            services.AddScoped<IPersonsSorterService, PersonsSorterService>();
+            services.AddScoped<IPersonsUpdaterService, PersonsUpdaterService>();
             services.AddScoped<IPersonsRepository, PersonsRepository>();
             services.AddScoped<ICountriesRepository, CountriesRepository>();
             services.AddHttpLogging(logging =>
