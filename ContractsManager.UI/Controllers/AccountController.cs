@@ -62,12 +62,19 @@ namespace ContractsManager.UI.Controllers
                         await _roleManager.CreateAsync(applicationRole);
                     }
 
-                    //Add new User into 'Admin role
+                    //Add new User into 'Admin' role
                     await _userManager.AddToRoleAsync(user, UserTypeOptions.Admin.ToString());
                 }
                 else
                 {
-                    //Add new User into 'Admin role
+                    //Create 'User' role
+                    if (await _roleManager.FindByNameAsync(UserTypeOptions.User.ToString()) is null)
+                    {
+                        ApplicationRole applicationRole = new ApplicationRole() { Name = UserTypeOptions.User.ToString() };
+                        await _roleManager.CreateAsync(applicationRole);
+                    }
+
+                    //Add new User into 'User' role
                     await _userManager.AddToRoleAsync(user, UserTypeOptions.User.ToString());
                 }
 
@@ -130,7 +137,8 @@ namespace ContractsManager.UI.Controllers
 
             return RedirectToAction(nameof(PersonsController.Index), "Persons");
         }
-
+        
+        [AllowAnonymous]
         public async Task<IActionResult> IsEmailAlreadyRegistered(string email)
         {
             ApplicationUser? user = await _userManager.FindByEmailAsync(email);
