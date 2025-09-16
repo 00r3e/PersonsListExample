@@ -24,12 +24,47 @@
 							@* <div class="navbar-brand">
 								 <img src="~/logo.png" asp-append-version="true" width="60px" />
 								</div> *@
-							<ul>
-								<li>
-									<a asp-action="Register" asp-controller="Account">Register</a>
-									<a asp-action="Login" asp-controller="Account">Login</a>
-								</li>
-							</ul>
+								<ul>
+								@if (User.Identity.IsAuthenticated)
+								{
+									<li>
+										<i class="fa-solid fa-user"></i>
+										@User.Identity?.Name
+									</li>
+									<li>
+										<a asp-action="Logout" asp-controller="Account">Logout</a>
+									</li>
+								}
+								else
+								{
+									@if(ViewBag.CurrentUrl == "~/Account/Register")
+									{
+										<li>
+											<a asp-action="Register" asp-controller="Account" class="nav-active">Register</a>
+										</li>
+									}
+									else
+									{
+										<li>
+											<a asp-action="Register" asp-controller="Account">Register</a>
+										</li>
+									}
+
+									@if (ViewBag.CurrentUrl == "~/Account/Login")
+									{
+										<li>
+											<a asp-action="Login" asp-controller="Account" class="nav-active">Login</a>
+										</li>
+									}
+									else
+									{
+										<li>
+											<a asp-action="Login" asp-controller="Account">Login</a>
+										</li>
+									}
+
+								}
+								</ul>
 						</div>
 					</div>
 				</div>
@@ -37,8 +72,23 @@
 			<div class="navbar mb">
 				<ul>
 					<li>
-						<a asp-controller="Persons" asp-action="Index">Persons</a>
-						<a asp-controller="Countries" asp-action="UploadFromExcel">Upload Countries</a>
+						@if (ViewBag.CurrentUrl == "~/Persons/Index")
+						{
+							<a asp-controller="Persons" asp-action="Index" class="nav-active">Persons</a>
+						}
+						else
+						{
+							<a asp-controller="Persons" asp-action="Index">Persons</a>
+						}
+						
+						@if (ViewBag.CurrentUrl == "~/Countries/UploadFromExcel")
+						{
+							<a asp-controller="Countries" asp-action="UploadFromExcel" class="nav-active">Upload Countries</a>
+						}
+						else
+						{
+							<a asp-controller="Countries" asp-action="UploadFromExcel">Upload Countries</a>
+						}
 
 					</li>
 				</ul>

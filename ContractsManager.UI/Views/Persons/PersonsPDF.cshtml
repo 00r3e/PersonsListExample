@@ -1,6 +1,8 @@
 ﻿@model IEnumerable<PersonResponse>
 @{
 	Layout = null;
+	ViewBag.CurrentUrl = "~/Persons/PersonsPDF";
+
 }
 
 <link href="@("http://" + Context.Request.Host.ToString() + "/StyleSheet.css")" rel="stylesheet" />

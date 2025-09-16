@@ -9,6 +9,7 @@ using CsvHelper;
 using Entities;
 using Fizzler.Systems.HtmlAgilityPack;
 using FluentAssertions;
+using FluentAssertions.Web;
 using HtmlAgilityPack;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;

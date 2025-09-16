@@ -26,7 +26,6 @@ builder.Host.UseSerilog( (HostBuilderContext context, IServiceProvider service, 
 builder.Services.ConfigureServices(builder.Configuration);
 
 
-
 if (!builder.Environment.IsEnvironment("Test"))
 {
     Rotativa.AspNetCore.RotativaConfiguration.Setup("wwwroot", wkhtmltopdfRelativePath: "Rotativa");
@@ -44,6 +43,9 @@ else
     app.UseExceptionHandlingMiddleware();
 }
 
+app.UseHsts();
+app.UseHttpsRedirection();
+
 app.UseSerilogRequestLogging();
 app.UseHttpLogging();
 
@@ -53,9 +55,15 @@ app.UseHttpLogging();
 //app.Logger.LogError("error-message");
 //app.Logger.LogCritical("critical-message");
 
-app.UseStaticFiles();
-app.UseRouting();
-app.MapControllers();
+app.UseStaticFiles();  
+
+app.UseRouting();  //Identifying action method based routee
+
+app.UseAuthentication();  //Reading Identity cookie
+
+app.UseAuthorization(); //Validates access permissions of the user
+
+app.MapControllers();  //Execute the filter pipeline (actions + filters)
 
 app.Run();
 

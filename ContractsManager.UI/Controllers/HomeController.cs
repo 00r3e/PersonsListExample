@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Diagnostics;
+﻿using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
 
 namespace PersonsListExample.Controllers
@@ -6,6 +7,7 @@ namespace PersonsListExample.Controllers
     public class HomeController : Controller
     {
         [Route("Error")]
+        [AllowAnonymous]
         public IActionResult Error()
         {
             IExceptionHandlerPathFeature? exceptionHandlerPathFeature = HttpContext.Features.Get<IExceptionHandlerPathFeature>();
