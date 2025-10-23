@@ -1,123 +1,107 @@
 ﻿@model RegisterDTO
 @{
-	ViewBag.Title = "Register";
-	ViewBag.CurrentUrl = "~/Account/Register";
+    ViewBag.Title = "Register";
+    ViewBag.CurrentUrl = "~/Account/Register";
 }
 
-<div class="text-grey">
-	<span>Contacts</span>
-	<i class="fa-solid fa-caret-right"></i>
-	<span>Register</span>
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card dark-card border-0 shadow-lg rounded-4 p-4 p-md-5" style="max-width: 550px; width: 100%;">
+        <div class="text-center mb-4">
+            <a asp-controller="Home" asp-action="Index" class="text-accent text-decoration-none fs-4 fw-semibold">
+                <i class="fa-solid fa-people-group me-2"></i>Contacts
+            </a>
+            <div class="text-secondary mt-1">
+                <i class="fa-solid fa-caret-right"></i>
+                <span class="text-light">Register</span>
+            </div>
+        </div>
+
+        <div class="text-center mb-3">
+            <span class="text-light">Already registered?</span>
+            <a asp-action="Login" asp-controller="Account" class="text-accent text-decoration-none ms-1 link-hover">
+                Login
+            </a>
+        </div>
+
+        <h3 class="text-accent text-center mb-4">Create an Account</h3>
+
+        <form asp-controller="Account" asp-action="Register" method="post" novalidate>
+            <!-- Name -->
+            <div class="mb-3">
+                <label asp-for="PersonName" class="form-label text-light">Full Name</label>
+                <input asp-for="PersonName" class="form-control dark-input rounded-pill py-2" placeholder="Your full name" />
+                <span asp-validation-for="PersonName" class="text-danger small"></span>
+            </div>
+
+            <!-- Email -->
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label text-light">Email</label>
+                <input asp-for="Email" class="form-control dark-input rounded-pill py-2" placeholder="Enter your email" />
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <!-- Password -->
+            <div class="mb-3">
+                <label asp-for="Password" class="form-label text-light">Password</label>
+                <input asp-for="Password" type="password" class="form-control dark-input rounded-pill py-2" placeholder="Enter password" />
+                <span asp-validation-for="Password" class="text-danger small"></span>
+            </div>
+
+            <!-- Confirm Password -->
+            <div class="mb-3">
+                <label asp-for="ConfirmPassword" class="form-label text-light">Confirm Password</label>
+                <input asp-for="ConfirmPassword" type="password" class="form-control dark-input rounded-pill py-2" placeholder="Confirm password" />
+                <span asp-validation-for="ConfirmPassword" class="text-danger small"></span>
+            </div>
+
+            <!-- Phone -->
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label text-light">Phone</label>
+                <input asp-for="Phone" class="form-control dark-input rounded-pill py-2" placeholder="Phone number" />
+                <span asp-validation-for="Phone" class="text-danger small"></span>
+            </div>
+
+            <!-- User Type -->
+            <div class="mb-4">
+                <label class="form-label text-light d-block">User Type</label>
+                <div class="d-flex gap-3">
+                    <div class="form-check">
+                        <input type="radio" id="User" asp-for="userType" value="User" class="form-check-input" checked />
+                        <label for="User" class="form-check-label text-light">User</label>
+                    </div>
+                    <div class="form-check">
+                        <input type="radio" id="Admin" asp-for="userType" value="Admin" class="form-check-input" />
+                        <label for="Admin" class="form-check-label text-light">Admin</label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Register Button -->
+            <div class="d-grid">
+                <button type="submit" class="btn btn-accent rounded-pill py-2 fw-semibold">
+                    <i class="fa-solid fa-user-plus me-2"></i> Register
+                </button>
+            </div>
+
+            <div asp-validation-summary="All" class="text-danger mt-3"></div>
+
+            @if (ViewBag.Errors != null)
+            {
+                <div class="text-danger mt-2">
+                    <ul>
+                        @foreach (string error in ViewBag.Errors)
+                        {
+                            <li>@error</li>
+                        }
+                    </ul>
+                </div>
+            }
+        </form>
+    </div>
 </div>
 
-<div class="form-container">
-	Already Registered? <a asp-action="Login" asp-controller="Account" class="link-hover">Login</a>
-	<h2 class="text-large">Register</h2>
-
-	<form asp-controller="Account" asp-action="Register" method="post">
-
-		@*PersonName*@
-		<div class="form-field flex">
-			<div class="w-25">
-				<label asp-for="PersonName" class="form-label pt">Name</label>
-			</div>
-			<div class="flex-1">
-				<input asp-for="PersonName" class="form-input" />
-				<span asp-validation-for="PersonName" class="text-red"></span>
-			</div>
-		</div>
-
-		@*Email*@
-		<div class="form-field flex">
-			<div class="w-25">
-				<label asp-for="Email" class="form-label pt">Email</label>
-			</div>
-			<div class="flex-1">
-				<input asp-for="Email" class="form-input" />
-				<span asp-validation-for="Email" class="text-red"></span>
-			</div>
-		</div>
-
-		@*Password*@
-		<div class="form-field flex">
-			<div class="w-25">
-				<label asp-for="Password" class="form-label pt">Password</label>
-			</div>
-			<div class="flex-1">
-				<input asp-for="Password" class="form-input" />
-				<span asp-validation-for="Password" class="text-red"></span>
-			</div>
-		</div>
-
-		@*ConfirmPassword*@
-		<div class="form-field flex">
-			<div class="w-25">
-				<label asp-for="ConfirmPassword" class="form-label pt">Confirm Password</label>
-			</div>
-			<div class="flex-1">
-				<input asp-for="ConfirmPassword" class="form-input" />
-				<span asp-validation-for="ConfirmPassword" class="text-red"></span>
-			</div>
-		</div>
-
-		@*Phone*@
-		<div class="form-field flex">
-			<div class="w-25">
-				<label asp-for="Phone" class="form-label pt">Phone</label>
-			</div>
-			<div class="flex-1">
-				<input asp-for="Phone" class="form-input" />
-				<span asp-validation-for="Phone" class="text-red"></span>
-			</div>
-		</div>
-
-		@*User Type*@
-		<div class="form-field flex">
-			<div class="w-25">
-				<label asp-for="userType" class="form-label pt">User Type</label>
-			</div>
-			<div class="flex-1">
-				<input type="radio" id="User" asp-for="userType" value="User" checked/>
-				<label for="User">User</label>
-				<input type="radio" id="Admin" asp-for="userType" value="Admin" />
-				<label for="Admin">Admin</label>
-			</div>
-		</div>
-
-		@*Register Button*@
-		<div class="form-field flex">
-			<div class="w-25">
-			</div>
-			<div class="flex-1">
-				<button class="button button-green-back" type="submit">Register</button>
-			</div>
-		</div>
-
-		<div asp-validation-summary="All" class="text-red"></div>
-
-		@if (ViewBag.Errors != null)
-		{
-			<div class="text-red ml">
-				<ul>
-					@foreach (string error in ViewBag.Errors)
-					{
-						<li class="ml">@error</li>
-					}
-				</ul>
-			</div>
-		}
-
-	</form>
-</div>
-
-
-@section scripts
-{
-	<!-- cdnjs  jquery  -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js" integrity="sha512-894YE6QWD5I59HgZOGReFYm4dnWc1Qt5NtvYSaNcOP+u1T9qYdvdihz0PPSiiqn/+/3e7Jo4EaG7TubfWGUrMQ==" crossorigin="anonymous" referrerpolicy="no-referrer" asp-fallback-test="window.jQuery" asp-fallback-src="~/jquery.min.js"></script>
-	<!-- cdnjs  jquery-validation -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.4/jquery.validate.min.js" integrity="sha512-FOhq9HThdn7ltbK8abmGn60A/EMtEzIzv1rvuh+DqzJtSGq8BRdEN0U+j0iKEIffiw/yEtVuladk6rsG4X6Uqg==" crossorigin="anonymous" referrerpolicy="no-referrer" asp-fallback-test="window.jQuery.validator" asp-fallback-src="~/jquery.validate.min.js"></script>
-	<!-- cdnjs  jquery-validation-unobtrusive -->
-	<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js" integrity="sha512-o6XqxgrUsKmchwy9G5VRNWSSxTS4Urr4loO6/0hYdpWmFUfHqGzawGxeQGMDqYzxjY9sbktPbNlkIQJWagVZQg==" crossorigin="anonymous" referrerpolicy="no-referrer" asp-fallback-test="window.jQuery.validator.unobstrusive" asp-fallback-src="jquery.validate.unobtrusive.min.js"></script>
-
+@section scripts {
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validate/1.19.4/jquery.validate.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery-validation-unobtrusive/3.2.12/jquery.validate.unobtrusive.min.js"></script>
 }

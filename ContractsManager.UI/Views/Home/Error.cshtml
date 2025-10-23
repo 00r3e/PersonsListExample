@@ -1,8 +1,27 @@
 ﻿@{
-	ViewBag.Title = "Error";
+    ViewBag.Title = "Error";
 }
-<div class="text-center">
-	<h1>Error</h1>
-	<h2 class="text-red">@ViewBag.ErrorMessage</h2>
-	<img src="~/error.svg" width= "500px" style="margin-top:100px" />
+
+<div class="container d-flex justify-content-center align-items-center min-vh-100">
+    <div class="card dark-card border-0 shadow-lg rounded-4 p-5 text-center" style="max-width: 600px; width: 100%;">
+        <div class="mb-4">
+            <img src="~/error.svg" alt="Error Illustration" class="img-fluid" style="max-width: 300px;" />
+        </div>
+
+        <h1 class="text-accent mb-3">
+            <i class="fa-solid fa-triangle-exclamation me-2"></i> Something went wrong
+        </h1>
+
+        <h4 class="text-danger fw-semibold">@ViewBag.ErrorMessage</h4>
+
+        <p class="text-secondary mt-3">
+            Please try again later or go back to the home page.
+        </p>
+
+        <div class="d-grid mt-4">
+            <a asp-controller="Home" asp-action="Index" class="btn btn-accent rounded-pill py-2 fw-semibold">
+                <i class="fa-solid fa-house me-2"></i> Back to Home
+            </a>
+        </div>
+    </div>
 </div>

@@ -3,6 +3,7 @@ using Entities;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using PersonsListExample.Filters.ActionFilters;
 using Repositories;
@@ -26,6 +27,9 @@ namespace PersonsListExample
                 var logger = services.BuildServiceProvider().GetRequiredService<ILogger<ResponseHeaderActionFilter>>();
 
                 options.Filters.Add(new ResponseHeaderActionFilter(logger) { Key = "X-Global-Custom-Key", Value = "Global-Custom-Value", Order = 2 });
+
+                options.Filters.Add(new AutoValidateAntiforgeryTokenAttribute());
+
             });
 
             //add services into IoC Container

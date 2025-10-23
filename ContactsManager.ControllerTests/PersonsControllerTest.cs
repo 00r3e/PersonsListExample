@@ -25,7 +25,7 @@ namespace PersonsListTests
         private readonly IPersonsDeleterService _personsDeleterService;
         private readonly IPersonsSorterService _personsSorterService;
 
-        private readonly ICountriesGetterService _countriesService;
+        private readonly ICountriesGetterService _countriesGetterService;
         private readonly ILogger<PersonsController> _logger;
 
         private readonly Mock<IPersonsGetterService> _personsGetterServiceMock;
@@ -37,11 +37,11 @@ namespace PersonsListTests
         private readonly Mock<ICountriesGetterService> _countriesServiceMock;
         private readonly Mock<ILogger<PersonsController>> _loggerMock;
 
-        private readonly Fixture _fixure;
+        private readonly Fixture _fixture;
 
         public PersonsControllerTest()
         {
-            _fixure = new Fixture();
+            _fixture = new Fixture();
 
             _personsGetterServiceMock = new Mock<IPersonsGetterService>();
             _personsAdderServiceMock = new Mock<IPersonsAdderService>();
@@ -58,7 +58,7 @@ namespace PersonsListTests
             _personsUpdaterService = _personsUpdaterServiceMock.Object;
             _personsDeleterService = _personsDeleterServiceMock.Object;
 
-            _countriesService = _countriesServiceMock.Object;
+            _countriesGetterService = _countriesServiceMock.Object;
             _logger = _loggerMock.Object;
         }
 
@@ -68,9 +68,9 @@ namespace PersonsListTests
         public async Task Index_ShouldReturnIndexViewWithPersonList()
         {
             //Arrange
-            List<PersonResponse> personsResponseList = _fixure.Create<List<PersonResponse>>();
+            List<PersonResponse> personsResponseList = _fixture.Create<List<PersonResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsGetterService, _personsAdderService,
+            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
                 _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
             
             _personsGetterServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
@@ -80,7 +80,7 @@ namespace PersonsListTests
                 .ReturnsAsync(personsResponseList);
 
             //Act
-            IActionResult actionResult = await personsController.Index(_fixure.Create<string>(), _fixure.Create<string>());
+            IActionResult actionResult = await personsController.Index(_fixture.Create<string>(), _fixture.Create<string>());
 
             //Assert
             ViewResult viewResult = Assert.IsType<ViewResult>(actionResult);
@@ -94,43 +94,43 @@ namespace PersonsListTests
 
         #region Create
 
-        //[Fact]
-        //public async Task Create_IfModelErrors_ToReturnCreateView()
-        //{
-        //    //Arrange
-        //    PersonAddRequest personAddRequest = _fixure.Create<PersonAddRequest>();
-        //    PersonResponse personResponse = _fixure.Create<PersonResponse>();
-        //    List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
+        [Fact]
+        public async Task Create_IfModelErrors_ToReturnCreateView()
+        {
+            //Arrange
+            PersonAddRequest personAddRequest = _fixture.Create<PersonAddRequest>();
+            PersonResponse personResponse = _fixture.Create<PersonResponse>();
+            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
 
-        //    PersonsController personsController = new PersonsController(_countriesService, _personsGetterService, _personsAdderService,
-        //        _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
+            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
+                _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
 
-        //    _countriesServiceMock.Setup(temp => temp.GetAllCountries())
-        //        .ReturnsAsync(countries);
-        //    _personsAdderServiceMock.Setup(temp => temp.AddPerson(It.IsAny<PersonAddRequest>()))
-        //        .ReturnsAsync(personResponse);
+            _countriesServiceMock.Setup(temp => temp.GetAllCountries())
+                .ReturnsAsync(countries);
+            _personsAdderServiceMock.Setup(temp => temp.AddPerson(It.IsAny<PersonAddRequest>()))
+                .ReturnsAsync(personResponse);
 
-        //    //Act
-        //    personsController.ModelState.AddModelError("TestError", "Test Error");
+            //Act
+            personsController.ModelState.AddModelError("TestError", "Test Error");
 
-        //    IActionResult actionResult = await personsController.Create(personAddRequest);
+            IActionResult actionResult = await personsController.Create(personAddRequest);
 
-        //    //Assert
-        //    ViewResult viewResult = Assert.IsType<ViewResult>(actionResult);
+            //Assert
+            ViewResult viewResult = Assert.IsType<ViewResult>(actionResult);
 
-        //    viewResult.ViewData.Model.Should().BeAssignableTo<PersonAddRequest>();
-        //    viewResult.ViewData.Model.Should().Be(personAddRequest);
-        //}
+            viewResult.ViewData.Model.Should().BeAssignableTo<PersonAddRequest>();
+            viewResult.ViewData.Model.Should().Be(personAddRequest);
+        }
 
         [Fact]
         public async Task Create_IfNoModelErrors_ToReturnRedirectToIndexView()
         {
             //Arrange
-            PersonAddRequest personAddRequest = _fixure.Create<PersonAddRequest>();
-            PersonResponse personResponse = _fixure.Create<PersonResponse>();
-            List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
+            PersonAddRequest personAddRequest = _fixture.Create<PersonAddRequest>();
+            PersonResponse personResponse = _fixture.Create<PersonResponse>();
+            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsGetterService, _personsAdderService,
+            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
                 _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
 
             _countriesServiceMock.Setup(temp => temp.GetAllCountries())
@@ -150,47 +150,47 @@ namespace PersonsListTests
         #endregion
 
         #region Edit
-        //[Fact]
-        //public async Task Edit_IfModelErrors_ToReturnEditView()
-        //{
-        //    //Arrange
-        //    PersonAddRequest personAddRequest = _fixure.Create<PersonAddRequest>();
-        //    PersonResponse personResponse = _fixure.Build<PersonResponse>().With(temp => temp.Gender, "Male").Create();
-        //    List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
+        [Fact]
+        public async Task Edit_IfModelErrors_ToReturnEditView()
+        {
+            //Arrange
+            PersonAddRequest personAddRequest = _fixture.Create<PersonAddRequest>();
+            PersonResponse personResponse = _fixture.Build<PersonResponse>().With(temp => temp.Gender, "Male").Create();
+            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
 
-        //    PersonsController personsController = new PersonsController(_countriesService, _personsGetterService, _personsAdderService,
-        //        _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
+            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
+                _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
 
-        //    _countriesServiceMock.Setup(temp => temp.GetAllCountries())
-        //        .ReturnsAsync(countries);
-        //    _personsGetterServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
-        //        .ReturnsAsync(personResponse);
-        //    _personsUpdaterServiceMock.Setup(temp => temp.UpdatePerson(It.IsAny<PersonUpdateRequest>()))
-        //        .ReturnsAsync(personResponse);
+            _countriesServiceMock.Setup(temp => temp.GetAllCountries())
+                .ReturnsAsync(countries);
+            _personsGetterServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
+                .ReturnsAsync(personResponse);
+            _personsUpdaterServiceMock.Setup(temp => temp.UpdatePerson(It.IsAny<PersonUpdateRequest>()))
+                .ReturnsAsync(personResponse);
 
-        //    //Act
-        //    personsController.ModelState.AddModelError("TestError", "Test Error");
+            //Act
+            personsController.ModelState.AddModelError("TestError", "Test Error");
 
-        //    PersonUpdateRequest personUpdateRequest = personResponse.ToPersonUpdateRequest();
+            PersonUpdateRequest personUpdateRequest = personResponse.ToPersonUpdateRequest();
 
-        //    IActionResult actionResult = await personsController.Edit(personUpdateRequest);
+            IActionResult actionResult = await personsController.Edit(personUpdateRequest);
 
-        //    //Assert
-        //    ViewResult viewResult = Assert.IsType<ViewResult>(actionResult);
+            //Assert
+            ViewResult viewResult = Assert.IsType<ViewResult>(actionResult);
 
-        //    viewResult.ViewData.Model.Should().BeAssignableTo<PersonUpdateRequest>();
-        //    viewResult.ViewData.Model.Should().BeEquivalentTo(personUpdateRequest);
-        //}
+            viewResult.ViewData.Model.Should().BeAssignableTo<PersonUpdateRequest>();
+            viewResult.ViewData.Model.Should().BeEquivalentTo(personUpdateRequest);
+        }
 
         [Fact]
         public async Task Edit_IfNoModelErrors_ToReturnRedirectToIndexView()
         {
             //Arrange
-            PersonAddRequest personAddRequest = _fixure.Create<PersonAddRequest>();
-            PersonResponse personResponse = _fixure.Build<PersonResponse>().With(temp => temp.Gender, "Male").Create();
-            List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
+            PersonAddRequest personAddRequest = _fixture.Create<PersonAddRequest>();
+            PersonResponse personResponse = _fixture.Build<PersonResponse>().With(temp => temp.Gender, "Male").Create();
+            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsGetterService, _personsAdderService,
+            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
                 _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
 
             _countriesServiceMock.Setup(temp => temp.GetAllCountries())
@@ -216,10 +216,10 @@ namespace PersonsListTests
         public async Task Delete_IfModelErrors_ToRedirectToIndexView()
         {
             //Arrange
-            PersonResponse personResponse = _fixure.Create<PersonResponse>();
-            List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
+            PersonResponse personResponse = _fixture.Create<PersonResponse>();
+            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsGetterService, _personsAdderService,
+            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
                 _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
 
             _personsGetterServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
@@ -242,10 +242,10 @@ namespace PersonsListTests
         public async Task Delete_IfNoModelErrors_ToRedirectToIndexView()
         {
             //Arrange
-            PersonResponse personResponse = _fixure.Create<PersonResponse>();
-            List<CountryResponse> countries = _fixure.Create<List<CountryResponse>>();
+            PersonResponse personResponse = _fixture.Create<PersonResponse>();
+            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
 
-            PersonsController personsController = new PersonsController(_countriesService, _personsGetterService, _personsAdderService,
+            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
                 _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
 
             _personsGetterServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
