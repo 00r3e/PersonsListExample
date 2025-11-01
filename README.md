@@ -5,11 +5,17 @@ The application demonstrating clean architecture and test-driven development usi
 
 Project Structure
 PersonsListExample/
+
 ├── Core/               # Domain models and interfaces
+
 ├── Infrastructure/     # EF Core DbContext + repository implementations
+
 ├── UI/                 # ASP.NET Core MVC Web UI
+
 ├── ControllerTests/    # xUnit tests for controllers
+
 ├── ServiceTests/       # xUnit tests for services
+
 ├── IntegrationTests/   # Full integration tests
 
 
