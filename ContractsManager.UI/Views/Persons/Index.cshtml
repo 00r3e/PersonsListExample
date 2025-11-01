@@ -65,9 +65,9 @@
 	<!-- Data Table -->
 	<div class="card dark-card border-0 shadow-sm rounded-4">
 		<div class="table-responsive">
-			<table class="table table-dark table-hover align-middle mb-0">
+			<table class="table table-dark table-hover align-middle mb-0 persons">
 				<thead class="table-accent">
-					<tr>
+					<tr class ="persons-tr">
 						@await Html.PartialAsync("/Views/Shared/_GridColumnHeading.cshtml", new ViewDataDictionary(ViewData) { { "ColumnName", nameof(PersonResponse.PersonName) }, { "DisplayName", "Person Name" } })
 						@await Html.PartialAsync("/Views/Shared/_GridColumnHeading.cshtml", new ViewDataDictionary(ViewData) { { "ColumnName", nameof(PersonResponse.Email) }, { "DisplayName", "Email" } })
 						@await Html.PartialAsync("/Views/Shared/_GridColumnHeading.cshtml", new ViewDataDictionary(ViewData) { { "ColumnName", nameof(PersonResponse.DateOfBirth) }, { "DisplayName", "Date of Birth" } })

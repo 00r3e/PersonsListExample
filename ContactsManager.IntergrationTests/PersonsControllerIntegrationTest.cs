@@ -2,15 +2,19 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Linq.Expressions;
+using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
 using AutoFixture;
+using ContactsManager.IntergrationTests;
 using CsvHelper;
 using Entities;
 using Fizzler.Systems.HtmlAgilityPack;
 using FluentAssertions;
 using FluentAssertions.Web;
 using HtmlAgilityPack;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
 using RepositoryContracts;
@@ -30,7 +34,7 @@ namespace PersonsListTests
         private readonly Mock<IPersonsDeleterService> _personsDeleterServiceMock;
         private readonly Mock<IPersonsUpdaterService> _personsUpdaterServiceMock;
         private readonly Mock<IPersonsSorterService> _personsSorterServiceMock;
-
+        private readonly Mock<ICountriesGetterService> _countriesGetterServiceMock;
 
         private readonly IFixture _fixture;
 
@@ -41,6 +45,14 @@ namespace PersonsListTests
             _personsDeleterServiceMock = new Mock<IPersonsDeleterService>();
             _personsUpdaterServiceMock = new Mock<IPersonsUpdaterService>();
             _personsSorterServiceMock = new Mock<IPersonsSorterService>();
+            _countriesGetterServiceMock = new Mock<ICountriesGetterService>();
+
+            _countriesGetterServiceMock
+            .Setup(x => x.GetAllCountries())
+            .ReturnsAsync(new List<CountryResponse>
+            {
+                new CountryResponse { CountryID = Guid.NewGuid(), CountryName = "Greece" }
+            });
 
 
             webAppFactory.ConfigureTestServicesAction = services =>
@@ -51,7 +63,22 @@ namespace PersonsListTests
                 services.AddSingleton(_personsUpdaterServiceMock.Object);
                 services.AddSingleton(_personsSorterServiceMock.Object);
 
+                services.AddSingleton(_countriesGetterServiceMock.Object);
+
+                services.AddAuthentication(options =>
+                {
+                    options.DefaultAuthenticateScheme = "Test";
+                    options.DefaultChallengeScheme = "Test";
+                })
+                .AddScheme<AuthenticationSchemeOptions, TestAuthHandler>("Test", options => { });
+
+                services.AddControllersWithViews(options =>
+                {
+                    options.Filters.Add(new IgnoreAntiforgeryTokenAttribute());
+                });
             };
+
+
 
             _client = webAppFactory.CreateClient();
 
@@ -153,12 +180,18 @@ namespace PersonsListTests
         public async Task Create_WithParameter_ReturnsIndexView()
         {
             // Arrange    
+            _personsAdderServiceMock.Setup(temp => temp.AddPerson(It.IsAny<PersonAddRequest>()))
+    .ReturnsAsync(new PersonResponse());
 
             PersonAddRequest personAddRequest = _fixture.Build<PersonAddRequest>()
-                .With(temp => temp.Email, "example1@example.com")
-                .With(temp => temp.Gender, GenderOptions.Other)
+                .With(p => p.PersonName, "John Doe")
+                .With(p => p.Email, "example1@example.com")
+                .With(p => p.Gender, GenderOptions.Other)
+                .With(p => p.DateOfBirth, DateTime.UtcNow.AddYears(-25))
+                .With(p => p.CountryID, Guid.NewGuid())
+                .With(p => p.Address, "123 Example Street")
+                .With(p => p.ReceiveNewsLetters, true)
                 .Create();
-
             List<PersonResponse> personsResponseList = new List<PersonResponse>()
             {
                 _fixture.Build<PersonResponse>()
@@ -175,8 +208,8 @@ namespace PersonsListTests
             };
 
             _personsAdderServiceMock.Setup(temp => temp.AddPerson(It.IsAny<PersonAddRequest>()))
-                .ReturnsAsync(It.IsAny<PersonResponse>());
-            
+    .ReturnsAsync(new PersonResponse());
+
             _personsGetterServiceMock.Setup(temp => temp.GetFilteredPersons(It.IsAny<string>(), It.IsAny<string>()))
                 .ReturnsAsync(personsResponseList);
 
@@ -184,14 +217,15 @@ namespace PersonsListTests
                 .ReturnsAsync(personsResponseList);
 
             // Act
+
             var formData = new Dictionary<string, string>{
                     { "PersonName", personAddRequest.PersonName },
                     { "Email", personAddRequest.Email },
-                    { "Gender", personAddRequest.Gender.ToString() },
-                    { "DateOfBirth", personAddRequest.DateOfBirth.ToString() },
+                    { "Gender", personAddRequest.Gender.ToString()},
+                    { "DateOfBirth",  personAddRequest.DateOfBirth?.ToString("yyyy-MM-dd") },
                     { "CountryID", personAddRequest.CountryID.ToString() },
                     { "Address", personAddRequest.Address },
-                    { "ReceiveNewsLetters", personAddRequest.ReceiveNewsLetters.ToString() }
+                    { "ReceiveNewsLetters", personAddRequest.ReceiveNewsLetters.ToString().ToLower() }
             };
 
             var content = new FormUrlEncodedContent(formData);
@@ -217,27 +251,16 @@ namespace PersonsListTests
         public async Task Delete_ToReturnView()
         {
             // Arrange
-            var personsServiceMock = new Mock<IPersonsGetterService>();
-            var factory = new CustomWebApplicationFactory();
-
-            factory.ConfigureTestServicesAction = services =>
-            {
-                services.AddSingleton(personsServiceMock.Object);
-            };
-
-            var client = factory.CreateClient();
-
-            var fixture = new Fixture();
-
-            PersonResponse personResponse = fixture.Build<PersonResponse>() // ✅ use local fixture
+            
+            PersonResponse personResponse = _fixture.Build<PersonResponse>()
                 .With(temp => temp.Email, "example1@example.com")
                 .With(temp => temp.PersonName, "ExampleName").Create();
 
-            personsServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>())) // ✅ use local mock
+            _personsGetterServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
                 .ReturnsAsync(personResponse);
 
             // Act
-            HttpResponseMessage response = await client.GetAsync($"Persons/Delete/{personResponse.PersonID}"); // ✅ use local client
+            HttpResponseMessage response = await _client.GetAsync($"Persons/Delete/{personResponse.PersonID}");
 
             // Assert
             response.Should().BeSuccessful();
@@ -257,7 +280,6 @@ namespace PersonsListTests
         public async Task Delete_WithParameter_ReturnsIndexView()
         {
             // Arrange    
-
             PersonResponse personResponse = _fixture.Build<PersonResponse>()
                 .With(temp => temp.Email, "example1@example.com")
                 .With(temp => temp.Gender, "Other")

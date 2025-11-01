@@ -72,8 +72,6 @@ namespace CRUDExample.Controllers
         }
 
 
-        //Executes when the user clicks on "Create Person" hyperlink
-        //(While opening the create view)
         [Route("[action]")]
         [HttpGet]
         [ResponseHeaderFilterFactory("X-Action-Custom-Key", "Action-Custom-Value", 4)]
@@ -90,7 +88,7 @@ namespace CRUDExample.Controllers
         [Route("[action]")]
         [HttpPost]
         [TypeFilter(typeof(PersonCreateAndEditPostActionFilter))]
-        [TypeFilter(typeof(FeatureDisabledResourceFilter), Arguments = new object[] {false})]
+        [TypeFilter(typeof(FeatureDisabledResourceFilter), Arguments = new object[] { false })]
         public async Task<IActionResult> Create(PersonAddRequest personRequest)
         {
             _logger.LogInformation("{MetodName} action method of {ControllerName}",  nameof(Create), nameof(PersonsController));
@@ -149,6 +147,7 @@ namespace CRUDExample.Controllers
             }
 
             return RedirectToAction("Index");
+
         }
 
         [HttpGet]

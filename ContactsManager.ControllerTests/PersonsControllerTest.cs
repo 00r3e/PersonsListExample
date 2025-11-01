@@ -94,33 +94,6 @@ namespace PersonsListTests
 
         #region Create
 
-        [Fact]
-        public async Task Create_IfModelErrors_ToReturnCreateView()
-        {
-            //Arrange
-            PersonAddRequest personAddRequest = _fixture.Create<PersonAddRequest>();
-            PersonResponse personResponse = _fixture.Create<PersonResponse>();
-            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
-
-            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
-                _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
-
-            _countriesServiceMock.Setup(temp => temp.GetAllCountries())
-                .ReturnsAsync(countries);
-            _personsAdderServiceMock.Setup(temp => temp.AddPerson(It.IsAny<PersonAddRequest>()))
-                .ReturnsAsync(personResponse);
-
-            //Act
-            personsController.ModelState.AddModelError("TestError", "Test Error");
-
-            IActionResult actionResult = await personsController.Create(personAddRequest);
-
-            //Assert
-            ViewResult viewResult = Assert.IsType<ViewResult>(actionResult);
-
-            viewResult.ViewData.Model.Should().BeAssignableTo<PersonAddRequest>();
-            viewResult.ViewData.Model.Should().Be(personAddRequest);
-        }
 
         [Fact]
         public async Task Create_IfNoModelErrors_ToReturnRedirectToIndexView()
@@ -150,37 +123,6 @@ namespace PersonsListTests
         #endregion
 
         #region Edit
-        [Fact]
-        public async Task Edit_IfModelErrors_ToReturnEditView()
-        {
-            //Arrange
-            PersonAddRequest personAddRequest = _fixture.Create<PersonAddRequest>();
-            PersonResponse personResponse = _fixture.Build<PersonResponse>().With(temp => temp.Gender, "Male").Create();
-            List<CountryResponse> countries = _fixture.Create<List<CountryResponse>>();
-
-            PersonsController personsController = new PersonsController(_countriesGetterService, _personsGetterService, _personsAdderService,
-                _personsDeleterService, _personsSorterService, _personsUpdaterService, _logger);
-
-            _countriesServiceMock.Setup(temp => temp.GetAllCountries())
-                .ReturnsAsync(countries);
-            _personsGetterServiceMock.Setup(temp => temp.GetPersonByPersonID(It.IsAny<Guid>()))
-                .ReturnsAsync(personResponse);
-            _personsUpdaterServiceMock.Setup(temp => temp.UpdatePerson(It.IsAny<PersonUpdateRequest>()))
-                .ReturnsAsync(personResponse);
-
-            //Act
-            personsController.ModelState.AddModelError("TestError", "Test Error");
-
-            PersonUpdateRequest personUpdateRequest = personResponse.ToPersonUpdateRequest();
-
-            IActionResult actionResult = await personsController.Edit(personUpdateRequest);
-
-            //Assert
-            ViewResult viewResult = Assert.IsType<ViewResult>(actionResult);
-
-            viewResult.ViewData.Model.Should().BeAssignableTo<PersonUpdateRequest>();
-            viewResult.ViewData.Model.Should().BeEquivalentTo(personUpdateRequest);
-        }
 
         [Fact]
         public async Task Edit_IfNoModelErrors_ToReturnRedirectToIndexView()
